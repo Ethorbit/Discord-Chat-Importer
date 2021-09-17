@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Discord.WebSocket;
+using Discord.Commands;
 
 namespace Discord_Channel_Importer
 {
 	class Program
 	{
-		private DiscordSocketClient _client {get; set;}
-
 		static void Main(string[] args)
 			=> new Program().MainAsync(args).GetAwaiter().GetResult();
 
@@ -22,24 +21,36 @@ namespace Discord_Channel_Importer
 
 			if (args.Length >= 1)
 			{
+				// Create Discord bot
 				string token = (string)args.GetValue(0);
+				var socketConfig = new DiscordSocketConfig();
+				var commandServiceConfig = new CommandServiceConfig();
 
 #if DEBUG
-				Console.WriteLine("The token you entered: " + token);
+				socketConfig.LogLevel = Discord.LogSeverity.Debug;
+				commandServiceConfig.LogLevel = Discord.LogSeverity.Debug;
+#else
+				socketConfig.LogLevel = Discord.LogSeverity.Error;
+				commandServiceConfig.LogLevel = Discord.LogSeverity.Error;
 #endif
 
-				// Connect to Discord
-				_client = new DiscordSocketClient();
+				var discordBotSettings = new DiscordBot.Settings(new DiscordSocketClient(socketConfig), token, new CommandService(commandServiceConfig));
+				var discordBot = new DiscordBot.Bot(discordBotSettings);
 
-				try // Do a login attempt
+				//		( No idea if this async code is even done right.... )
+				discordBot.Log += async (object sender, DiscordBot.Log e) => Task.Run(() => Console.WriteLine(e.Message));
+				discordBot.Logged_In += async (object sender, EventArgs e) => Task.Run(() => Console.WriteLine("Logged in."));
+				Task.Run(() => Console.WriteLine("Logging in..."));
+
+				try // Attempt to start our Discord bot
 				{
-					await _client.LoginAsync(Discord.TokenType.Bot, token);
+					await discordBot.StartAsync(); 
 
-					await Task.Delay(-1); // Keep the program running..
+					await Task.Delay(-1); // Keep the program running.
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine($"Error logging in with the provided token, did you enter it correctly? - ({e.Message})");
+					Console.WriteLine($"Error starting bot, did you enter the token correctly? - ({e.Message})");
 				}
 			}
 		}

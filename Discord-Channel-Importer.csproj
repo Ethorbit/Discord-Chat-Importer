@@ -10,4 +10,8 @@
     <PackageReference Include="Discord.Net" Version="2.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Utilities\" />
+  </ItemGroup>
+
 </Project>
