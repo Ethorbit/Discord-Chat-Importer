@@ -28,16 +28,16 @@ namespace Discord_Channel_Importer
 
 #if DEBUG
 				socketConfig.LogLevel = Discord.LogSeverity.Debug;
-				commandServiceConfig.LogLevel = Discord.LogSeverity.Debug;
 #else
 				socketConfig.LogLevel = Discord.LogSeverity.Error;
-				commandServiceConfig.LogLevel = Discord.LogSeverity.Error;
 #endif
 
-				var discordBotSettings = new DiscordBot.Settings(new DiscordSocketClient(socketConfig), token, new CommandService(commandServiceConfig));
+				var embedBuilder = new Discord.EmbedBuilder();
+				embedBuilder.Author = new Discord.EmbedAuthorBuilder();
+
+				var discordBotSettings = new DiscordBot.Settings.BotSettings(new DiscordSocketClient(socketConfig), token, embedBuilder);
 				var discordBot = new DiscordBot.Bot(discordBotSettings);
 
-				//		( No idea if this async code is even done right.... )
 				discordBot.Log += async (object sender, DiscordBot.Log e) => Task.Run(() => Console.WriteLine(e.Message));
 				discordBot.Logged_In += async (object sender, EventArgs e) => Task.Run(() => Console.WriteLine("Logged in."));
 				Task.Run(() => Console.WriteLine("Logging in..."));
