@@ -23,23 +23,9 @@ namespace Discord_Channel_Importer
 			{
 				// Create Discord bot
 				string token = (string)args.GetValue(0);
-				var socketConfig = new DiscordSocketConfig();
-				var commandServiceConfig = new CommandServiceConfig();
-
-#if DEBUG
-				socketConfig.LogLevel = Discord.LogSeverity.Debug;
-#else
-				socketConfig.LogLevel = Discord.LogSeverity.Error;
-#endif
-
-				var embedBuilder = new Discord.EmbedBuilder();
-				embedBuilder.Author = new Discord.EmbedAuthorBuilder();
-
-				var discordBotSettings = new DiscordBot.Settings.BotSettings(new DiscordSocketClient(socketConfig), token, embedBuilder);
-				var discordBot = new DiscordBot.Bot(discordBotSettings);
-
-				discordBot.Log += async (object sender, DiscordBot.Log e) => Task.Run(() => Console.WriteLine(e.Message));
+				var discordBot = await DiscordBot.Factories.BotFactory.CreateBot(token);
 				discordBot.Logged_In += async (object sender, EventArgs e) => Task.Run(() => Console.WriteLine("Logged in."));
+				
 				Task.Run(() => Console.WriteLine("Logging in..."));
 
 				try // Attempt to start our Discord bot

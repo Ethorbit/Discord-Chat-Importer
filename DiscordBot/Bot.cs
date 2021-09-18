@@ -9,18 +9,13 @@ namespace Discord_Channel_Importer.DiscordBot
 {
 	public class Bot
 	{
-		public event EventHandler<DiscordBot.Log> Log;
 		public event EventHandler<EventArgs> Logged_In;
 
-		protected readonly DiscordBot.Settings.BotSettings Settings;
+		public readonly DiscordBot.Settings.BotSettings Settings;
 
 		public Bot(DiscordBot.Settings.BotSettings settings)
 		{
 			this.Settings = settings;
-		}
-		protected void MakeLog(string log)
-		{
-			this.Log(this, new DiscordBot.Log() { Message = log });
 		}
 
 		/// <summary>
@@ -29,10 +24,6 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// <returns></returns>
 		public async Task StartAsync()
 		{
-			this.Log += Bot_Log;
-			this.Settings.Client.MessageReceived += Bot_MessageReceived;
-			this.Settings.EmbedBuilder = this.Settings.EmbedBuilder ?? new EmbedBuilder();
-
 			// Connect
 			await this.Settings.Client.LoginAsync(Discord.TokenType.Bot, this.Settings.Token);
 			await this.Settings.Client.StartAsync();
@@ -42,78 +33,64 @@ namespace Discord_Channel_Importer.DiscordBot
 		}
 
 		/// <summary>
-		/// Imports a parsed json channel into an existing channel.
+		/// Logs available commands
 		/// </summary>
-		/// <param name="URL"></param>
-		/// <param name="Channel"></param>
-		/// <returns></returns>
-		public async Task ImportChannelAsync(string URL, string Channel)
+		public async Task LogCommands(BotSocketCommandContext cmdContext)
 		{
+			var channel = cmdContext.Channel;
+
+			var embedBuilder = new EmbedBuilder();
+			embedBuilder.Title = "Importer Commands";
+			embedBuilder.Color = new Color(255, 255, 255);
+			embedBuilder.AddField("import <url> #channel-name", @"Gets all Discord messages from the 
+																provided URL (which should be a .json 
+																with the proper Discord channel structure) 
+																and recreates them in the provided channel.");
+			embedBuilder.AddField("undo #channel-name", @"Removes ALL archived messages we made from the channel.");
 			
+			var embed = embedBuilder.Build();
+			await channel.SendMessageAsync(null, false, embed);
 		}
 
 		/// <summary>
-		/// Removes our imported stuff from a channel
+		/// Parses a Discord channel's json and generates embeds based off it, 
+		/// which it sends off to the provided channel.
 		/// </summary>
-		/// <param name="Channel"></param>
-		/// <returns></returns>
-		public async Task RemoveImportsAsync(string Channel) 
+		public async Task ImportMessagesFromURLToChannel(BotSocketCommandContext cmdContext, string url, IChannel toChannel)
 		{
+			var embedBuilder = new EmbedBuilder();
 
-		}
-
-		/// <summary>
-		/// User sent a message in a channel visible to this bot
-		/// </summary>
-		private async Task Bot_MessageReceived(SocketMessage arg)
-		{
-			string message = arg.Content;
-			
-			if (message[0] == '!') // ! prefix is for our commands
+			if (url.Length <= 0)
 			{
-				// Get command and its arguments
-				List<string> command_args = new List<string>();
-				await Task.Run(() => command_args.AddRange(arg.Content.ToLower().Split(null)));
-				int command_args_count = await Task.Run(() => { return command_args.Count(); }); 
+				embedBuilder.Title = "URL required!";
+				embedBuilder.Description = "How am I supposed to know what you want? Provide a URL to the json containing the channel with messages.";
+				embedBuilder.Color = new Color(255, 0, 0);
+				var embed = embedBuilder.Build();
 
-				if (command_args_count < 2) // It needs to have the !importer as well as the subcommand name (import, eg. !importer import)
-				{
-					this.Settings.EmbedBuilder.Title = "Commands";
-					this.Settings.EmbedBuilder.Description = "This is an embed test.";
-					var embed = this.Settings.EmbedBuilder.Build();
-					arg.Channel.SendMessageAsync("", false, embed);
-
-					return; 
-				}
-
-				// Do command stuff
-				string command = await Task.Run(() => { return command_args.First(); });	
-
-				if (command == "!importer")
-				{
-					string subCommand = command_args[1];
-
-					if (subCommand == "import")
-					{
-						if (command_args_count < 3) return;
-						string url = command_args[2];
-						string channel = command_args[3];
-
-						MakeLog("url: " + url + " channel: " + channel);
-						//arg.MentionedChannels;
-
-						this.ImportChannelAsync(url, channel);
-					}
-					else if (subCommand == "undo")
-					{
-						if (command_args_count < 2) return;
-						string channel = command_args[2];
-
-						this.RemoveImportsAsync(channel);
-					}
-				}
+				await cmdContext.Channel.SendMessageAsync(null, false, embed);
+				return;
 			}
+
+			if (toChannel == null)
+			{
+				embedBuilder.Title = "Channel required!";
+				embedBuilder.Description = "You want to import messages into a channel, but what channel? You forgot to tag the channel.. (#my-channel)";
+				embedBuilder.Color = new Color(255, 0, 0);
+				var embed = embedBuilder.Build();
+
+				await cmdContext.Channel.SendMessageAsync(null, false, embed);
+				return;
+			}
+
+			await Task.CompletedTask;
 		}
-		private void Bot_Log(object sender, Log e) {} 
+
+		/// <summary>
+		/// Removes all messages we ever archived from the specified channel.
+		/// </summary>
+		public async Task RemoveArchivedMessagesFromChannel(BotSocketCommandContext cmdContext, IChannel channel)
+		{
+			await Task.CompletedTask;
+		}
 	}
 }
