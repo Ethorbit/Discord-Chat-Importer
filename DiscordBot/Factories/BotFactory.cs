@@ -7,6 +7,9 @@ namespace Discord_Channel_Importer.DiscordBot.Factories
 {
 	public static class BotFactory
 	{
+		/// <summary>
+		/// Creates our custom Discord bot.
+		/// </summary>
 		public static async Task<DiscordBot.Bot> CreateBot(string botToken)
 		{
 			var socketConfig = new DiscordSocketConfig();

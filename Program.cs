@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord.WebSocket;
-using Discord.Commands;
 
 namespace Discord_Channel_Importer
 {
@@ -23,9 +21,9 @@ namespace Discord_Channel_Importer
 			{
 				// Create Discord bot
 				string token = (string)args.GetValue(0);
+
 				var discordBot = await DiscordBot.Factories.BotFactory.CreateBot(token);
-				discordBot.Logged_In += async (object sender, EventArgs e) => Task.Run(() => Console.WriteLine("Logged in."));
-				
+				discordBot.Logged_In += async (object sender, EventArgs e) => Task.Run(() => Console.WriteLine("Logged in."));	
 				Task.Run(() => Console.WriteLine("Logging in..."));
 
 				try // Attempt to start our Discord bot
@@ -36,7 +34,7 @@ namespace Discord_Channel_Importer
 				}
 				catch (Exception e)
 				{
-					Console.WriteLine($"Error starting bot, did you enter the token correctly? - ({e.Message})");
+					Console.WriteLine($"Error starting bot. Did you enter the token correctly? - ({e.Message})");
 				}
 			}
 		}

@@ -1,7 +1,5 @@
-﻿using Discord;
-using Discord.Commands;
+﻿using Discord.Commands;
 using Discord.WebSocket;
-using System;
 using System.Threading.Tasks;
 using System.Reflection;
 
@@ -9,7 +7,7 @@ namespace Discord_Channel_Importer.DiscordBot
 {
 	public class CommandHandler
 	{
-		private DiscordBot.Bot _bot { get; }
+		private readonly DiscordBot.Bot _bot;
 		private readonly DiscordSocketClient _client;
 		private readonly CommandService _service;
 

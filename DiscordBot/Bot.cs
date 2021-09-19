@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Discord;
-using Discord.WebSocket;
-using System.Collections.Generic;
-using System.Linq;
+using Discord_Channel_Importer.DiscordBot.Factories;
+using Discord_Channel_Importer.Utilities;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
+	/// <summary>
+	/// Our Custom Discord bot.
+	/// </summary>
 	public class Bot
 	{
 		public event EventHandler<EventArgs> Logged_In;
@@ -39,16 +41,14 @@ namespace Discord_Channel_Importer.DiscordBot
 		{
 			var channel = cmdContext.Channel;
 
-			var embedBuilder = new EmbedBuilder();
-			embedBuilder.Title = "Importer Commands";
-			embedBuilder.Color = new Color(255, 255, 255);
-			embedBuilder.AddField("import <url> #channel-name", @"Gets all Discord messages from the 
+			var embed = MessageFactory.CreateEmbed("Importer Commands", null, Color.LightGrey, new EmbedField[] {
+				MessageFactory.CreateEmbedField("import <url> #channel-name", @"Gets all Discord messages from the 
 																provided URL (which should be a .json 
 																with the proper Discord channel structure) 
-																and recreates them in the provided channel.");
-			embedBuilder.AddField("undo #channel-name", @"Removes ALL archived messages we made from the channel.");
-			
-			var embed = embedBuilder.Build();
+																and recreates them in the provided channel."),
+				MessageFactory.CreateEmbedField("undo #channel-name", "Removes ALL archived messages we made in the specified channel.")
+			}); 
+
 			await channel.SendMessageAsync(null, false, embed);
 		}
 
@@ -58,31 +58,23 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// </summary>
 		public async Task ImportMessagesFromURLToChannel(BotSocketCommandContext cmdContext, string url, IChannel toChannel)
 		{
-			var embedBuilder = new EmbedBuilder();
-
 			if (url.Length <= 0)
 			{
-				embedBuilder.Title = "URL required!";
-				embedBuilder.Description = "How am I supposed to know what you want? Provide a URL to the json containing the channel with messages.";
-				embedBuilder.Color = new Color(255, 0, 0);
-				var embed = embedBuilder.Build();
-
-				await cmdContext.Channel.SendMessageAsync(null, false, embed);
+				await cmdContext.Channel.SendMessageAsync(null, false, MessageFactory.CreateEmbed("URL required!", "How am I supposed to know what you want? Provide a URL to the json containing the channel with messages.", Color.Red));
 				return;
 			}
 
 			if (toChannel == null)
 			{
-				embedBuilder.Title = "Channel required!";
-				embedBuilder.Description = "You want to import messages into a channel, but what channel? You forgot to tag the channel.. (#my-channel)";
-				embedBuilder.Color = new Color(255, 0, 0);
-				var embed = embedBuilder.Build();
-
-				await cmdContext.Channel.SendMessageAsync(null, false, embed);
+				await cmdContext.Channel.SendMessageAsync(null, false, MessageFactory.CreateEmbed("Channel required!", "You want to import messages into a channel, but what channel? You forgot to tag the channel.. (#my-channel)", Color.Red));
 				return;
 			}
 
-			await Task.CompletedTask;
+			// TODO: Validate URL, error out if it's not valid
+			await cmdContext.Channel.SendMessageAsync(null, false, MessageFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
+			
+			await JsonFactory.CreateFromURL("https://www.dropbox.com/s/m5gmfve6xw7yf55/chronicles-changes.json?dl=0&raw=1");
+			await cmdContext.Channel.SendMessageAsync(null, false, MessageFactory.CreateEmbed("Success!", "I finished the request.", Color.Green));
 		}
 
 		/// <summary>
@@ -90,6 +82,12 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// </summary>
 		public async Task RemoveArchivedMessagesFromChannel(BotSocketCommandContext cmdContext, IChannel channel)
 		{
+			if (channel == null)
+			{
+				await cmdContext.Channel.SendMessageAsync(null, false, MessageFactory.CreateEmbed("Channel required!", "You want to remove all archived messages, but from what channel? You forgot to tag the channel.. (#my-channel)", Color.Red));
+				return;
+			}
+
 			await Task.CompletedTask;
 		}
 	}

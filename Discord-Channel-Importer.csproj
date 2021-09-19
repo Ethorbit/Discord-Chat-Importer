@@ -8,10 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Utilities\" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 </Project>

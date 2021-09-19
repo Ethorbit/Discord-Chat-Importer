@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using System.Threading.Tasks;
 
 namespace Discord_Channel_Importer.DiscordBot.Modules
@@ -11,20 +10,19 @@ namespace Discord_Channel_Importer.DiscordBot.Modules
 		[Alias("importer help")]
 		public async Task ListCommands()
 		{
-			var bot = this.Context.Bot;
-			await bot.LogCommands(this.Context);
+			await this.Context.Bot.LogCommands(this.Context);
 		}
 
 		[Command("importer import", RunMode = RunMode.Async)]
 		public async Task ImportMessages(string url = "", IChannel channel = null)
 		{
-			await Context.Bot.ImportMessagesFromURLToChannel(Context, url, channel);
+			await this.Context.Bot.ImportMessagesFromURLToChannel(this.Context, url, channel);
 		}
 
 		[Command("importer undo", RunMode=RunMode.Async)]
 		public async Task UndoMessages(IChannel channel)
 		{
-			await Context.Bot.RemoveArchivedMessagesFromChannel(Context, channel);
+			await this.Context.Bot.RemoveArchivedMessagesFromChannel(this.Context, channel);
 		}
 	}
 }
