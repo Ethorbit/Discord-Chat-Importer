@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord_Channel_Importer.DiscordBot.Factories;
 using Discord_Channel_Importer.Utilities;
+using Discord_Channel_Importer.DiscordBot.ImportStructures;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
@@ -72,8 +73,12 @@ namespace Discord_Channel_Importer.DiscordBot
 
 			// TODO: Validate URL, error out if it's not valid
 			await cmdContext.Channel.SendMessageAsync(null, false, MessageFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
-			
-			await JsonFactory.CreateFromURL("https://www.dropbox.com/s/m5gmfve6xw7yf55/chronicles-changes.json?dl=0&raw=1");
+
+			object exportedObj = await JsonFactory.CreateFromURLAsync("https://www.dropbox.com/s/m5gmfve6xw7yf55/chronicles-changes.json?dl=0&raw=1", typeof(ExportedChannel));
+			var exportedChannel = (ExportedChannel)exportedObj;
+
+			Console.WriteLine(exportedChannel);
+
 			await cmdContext.Channel.SendMessageAsync(null, false, MessageFactory.CreateEmbed("Success!", "I finished the request.", Color.Green));
 		}
 

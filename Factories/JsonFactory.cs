@@ -19,18 +19,18 @@ namespace Discord_Channel_Importer.Utilities
 		/// <summary>
 		/// Creates and returns a Json object from a URL's raw text
 		/// </summary>
-		public static async Task CreateFromURL(string url)
+		public static async Task<object> CreateFromURLAsync(string url, Type type)
 		{
-			string txt;
+			string rawText;
 
 			// Download the text
 			using (var client = new System.Net.WebClient())
 			{
-				txt = await client.DownloadStringTaskAsync(new System.Uri(url));
+				rawText = await client.DownloadStringTaskAsync(new System.Uri(url));
 			}
 
 			// Turn it into a Json object
-			
+			return Newtonsoft.Json.JsonConvert.DeserializeObject(rawText, type);
 		}
 	}
 }
