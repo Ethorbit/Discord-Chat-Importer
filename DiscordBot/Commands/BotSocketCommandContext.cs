@@ -2,7 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace Discord_Channel_Importer.DiscordBot
+namespace Discord_Channel_Importer.DiscordBot.Commands
 {
 	/// <summary>
 	/// A custom CommandContext that exposes a Context property of the DiscordBot.Bot class 

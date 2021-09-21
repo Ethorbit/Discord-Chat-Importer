@@ -1,6 +1,6 @@
 ﻿namespace Discord_Channel_Importer.DiscordBot.ImportStructures
 {
-	public class Attachment
+	public struct Attachment
 	{
 		public ulong Id { get; set; }
 

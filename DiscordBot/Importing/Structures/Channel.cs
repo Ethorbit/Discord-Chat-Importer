@@ -1,6 +1,6 @@
 ﻿namespace Discord_Channel_Importer.DiscordBot.ImportStructures
 {
-	public class Channel
+	public struct Channel
 	{
 		public string Category { get; set; }
 		public string Topic { get; set; }

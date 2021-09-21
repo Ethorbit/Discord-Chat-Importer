@@ -3,7 +3,7 @@ using Discord.WebSocket;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace Discord_Channel_Importer.DiscordBot
+namespace Discord_Channel_Importer.DiscordBot.Commands
 {
 	public class CommandHandler
 	{

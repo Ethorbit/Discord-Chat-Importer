@@ -7,11 +7,12 @@ namespace Discord_Channel_Importer.DiscordBot.Factories
 		/// <summary>
 		/// Creates a Discord EmbedField object for use in Embeds.
 		/// </summary>
-		public static EmbedField CreateEmbedField(string row, string text)
+		public static EmbedField CreateEmbedField(string row, string text, bool inline = false)
 		{
 			var embedFieldBuilder = new EmbedFieldBuilder();
 			embedFieldBuilder.Name = row;
 			embedFieldBuilder.Value = text;
+			embedFieldBuilder.IsInline = inline;
 
 			return embedFieldBuilder.Build();
 		}

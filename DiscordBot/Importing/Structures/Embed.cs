@@ -3,7 +3,7 @@ using System;
 
 namespace Discord_Channel_Importer.DiscordBot.ImportStructures
 {
-	public class Embed
+	public struct Embed
 	{
 		public string Url { get; set; }
 
