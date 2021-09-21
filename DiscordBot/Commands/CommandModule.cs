@@ -8,20 +8,26 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 {
 	public class CommandModule : ModuleBase<BotSocketCommandContext>
 	{
+		private const GuildPermission _permissions = (GuildPermission.ManageMessages | GuildPermission.ManageChannels);
+
 		[Command("importer", RunMode = RunMode.Async)]
 		[Alias("importer help")]
 		public async Task ListCommands()
 		{
-			try
-			{
-				await this.Context.Bot.LogCommandsAsync(this.Context);
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
-			}
+			await ReplyAsync(null, false, MessageFactory.CreateEmbed("Importer Commands", null, Color.LightGrey, 
+				new EmbedField[] {
+					MessageFactory.CreateEmbedField("import <url> #channel-name", @"Gets all Discord messages from the 
+																	provided URL (which should be a .json 
+																	with the proper Discord channel structure) 
+																	and recreates them in the provided channel."),
+					MessageFactory.CreateEmbedField("cancel #channel-name", @"Makes me stop importing to a channel that I am currently sending
+																			archived messages to."),
+					MessageFactory.CreateEmbedField("undo #channel-name", "Removes ALL archived messages I made in the specified channel and automatically cancels importing to that channel.")
+				}
+			));
 		}
 
+		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer import", RunMode = RunMode.Async)]
 		public async Task ImportMessages(string url = "", IChannel channel = null)
 		{
@@ -52,18 +58,18 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 
 			try
 			{
-				ImportReturn importRes = await this.Context.Bot.ImportMessagesFromURIToChannelAsync(uri, channel); //, this.Context);
+				BotReturn res = await this.Context.Bot.ImportMessagesFromURIToChannelAsync(uri, channel); //, this.Context);
 
-				if (importRes == ImportReturn.SUCCESS)
+				if (res == BotReturn.Success)
 				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Success!", "I finished the request.", Color.Green));
 				}
 
-				if (importRes == ImportReturn.PARSEERROR)
+				if (res == BotReturn.Error)
 				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Error parsing the URL!", "There was an error parsing the text on the provided webpage. Reasons why this might happen:", Color.Red,
 						new EmbedField[] {
-							MessageFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all; it is not Raw Text.", true),
+							MessageFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
 							MessageFactory.CreateEmbedField("Incompatible .json", "The .json's structure does not match the requirements, you must export the channel's .json with DiscordChatExporter because I do not support anything else.", true),
 							MessageFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
 						}
@@ -76,12 +82,19 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			}
 		}
 
+		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer cancel", RunMode = RunMode.Async)]
 		public async Task CancelMessageImport(IChannel channel)
 		{
+			if (channel == null)
+			{
+				await ReplyAsync(null, false, MessageFactory.CreateEmbed("Invalid Channel!", "What channel do you want to make me cancel importing to?", Color.Red));
+				return;
+			}
+
 			try
 			{
-				await this.Context.Bot.CancelImportingToChannelAsync(this.Context, channel);
+				BotReturn res = await this.Context.Bot.CancelImportingToChannelAsync(channel);
 			}
 			catch (Exception e)
 			{
@@ -89,12 +102,19 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			}
 		}
 
+		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer undo", RunMode=RunMode.Async)]
-		public async Task UndoMessages(IChannel channel)
+		public async Task RemoveImportedMessages(IChannel channel)
 		{
+			if (channel == null)
+			{
+				await ReplyAsync(null, false, MessageFactory.CreateEmbed("Channel required!", "You want to remove all archived messages, but from what channel? You forgot to tag the channel.. (#my-channel)", Color.Red));
+				return;
+			}
+
 			try 
 			{
-				await this.Context.Bot.RemoveArchivedMessagesFromChannelAsync(this.Context, channel);
+				BotReturn res = await this.Context.Bot.RemoveArchivedMessagesFromChannelAsync(channel);
 			}
 			catch (Exception e)
 			{

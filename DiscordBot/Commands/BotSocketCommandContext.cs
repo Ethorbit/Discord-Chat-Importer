@@ -8,13 +8,37 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 	/// A custom CommandContext that exposes a Context property of the DiscordBot.Bot class 
 	/// (Where we started the bot and store all its custom methods and whatnot)
 	/// </summary>
-	public class BotSocketCommandContext : ICommandContext
+	public partial class BotSocketCommandContext 
 	{
 		//
 		// Summary:
 		//     Gets the Discord Bot itself
-		public DiscordBot.Bot Bot { get; } // Added
+		public DiscordBot.Bot Bot { get; }
 
+		//
+		// Summary:
+		//     Initializes a new Discord.Commands.SocketCommandContext class with the provided
+		//     client and message.
+		//
+		// Parameters:
+		//   client:
+		//     The underlying client.
+		//
+		//   msg:
+		//     The underlying message.
+		public BotSocketCommandContext(DiscordBot.Bot bot, SocketUserMessage msg)
+		{
+			Bot = bot;
+			Client = bot.Settings.Client;
+			Guild = (msg.Channel as SocketGuildChannel)?.Guild;
+			Channel = msg.Channel;
+			User = msg.Author;
+			Message = msg;
+		}
+	}
+
+	public partial class BotSocketCommandContext : ICommandContext // Defaults
+	{
 		//
 		// Summary:
 		//     Gets the Discord.WebSocket.DiscordSocketClient that the command is executed with.
@@ -56,26 +80,5 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 		IUser ICommandContext.User => User;
 
 		IUserMessage ICommandContext.Message => Message;
-
-		//
-		// Summary:
-		//     Initializes a new Discord.Commands.SocketCommandContext class with the provided
-		//     client and message.
-		//
-		// Parameters:
-		//   client:
-		//     The underlying client.
-		//
-		//   msg:
-		//     The underlying message.
-		public BotSocketCommandContext(DiscordBot.Bot bot /* Added */, SocketUserMessage msg) 
-		{
-			Bot = bot; // Added
-			Client = bot.Settings.Client; // Changed
-			Guild = (msg.Channel as SocketGuildChannel)?.Guild;
-			Channel = msg.Channel;
-			User = msg.Author;
-			Message = msg;
-		}
 	}
 }

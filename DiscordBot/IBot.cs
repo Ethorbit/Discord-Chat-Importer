@@ -21,25 +21,20 @@ namespace Discord_Channel_Importer.DiscordBot
 		Task StartAsync();
 
 		/// <summary>
-		/// Logs available commands
-		/// </summary>
-		Task LogCommandsAsync(BotSocketCommandContext cmdContext);
-
-		/// <summary>
 		/// Parses a Discord channel's json and generates embeds based off it, 
 		/// which it sends off to the provided channel.
 		/// </summary>
-		Task<ImportReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel toChannel);
+		Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel toChannel);
 
 		/// <summary>
 		/// Cancels importing to a channel that we're currently making archived messages in
 		/// </summary>
-		Task CancelImportingToChannelAsync(BotSocketCommandContext cmdContext, IChannel toChannel);
+		Task<BotReturn> CancelImportingToChannelAsync(IChannel toChannel);
 
 		/// <summary>
 		/// Removes all messages we ever archived from the specified channel.
 		/// </summary>
-		Task RemoveArchivedMessagesFromChannelAsync(BotSocketCommandContext cmdContext, IChannel channel);
+		Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(IChannel channel);
 	}
 
 }
