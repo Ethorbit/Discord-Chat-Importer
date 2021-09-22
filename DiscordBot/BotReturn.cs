@@ -5,7 +5,11 @@
 	/// </summary>
 	public enum BotReturn
 	{
-		Success = 1,
-		Error = 2
+		Success,
+		Error,
+		ParseError,
+		ImporterExists,
+		ImporterDoesntExist,
+		MaxImportsReached
 	}
 }

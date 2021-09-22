@@ -1,9 +1,8 @@
-﻿using Discord;
-using Discord_Channel_Importer.DiscordBot.Commands;
+﻿using System;
+using System.Threading.Tasks;
+using Discord;
 using Discord_Channel_Importer.DiscordBot.Importing;
 using Discord_Channel_Importer.DiscordBot.Settings;
-using System;
-using System.Threading.Tasks;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
@@ -11,7 +10,7 @@ namespace Discord_Channel_Importer.DiscordBot
 	{
 		public BotSettings Settings { get; }
 
-		public IChatImporter ChatImporter { get; }
+		public ChatImportManager ChatImportManager { get; }
 
 
 		/// <summary>
@@ -24,12 +23,12 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// Parses a Discord channel's json and generates embeds based off it, 
 		/// which it sends off to the provided channel.
 		/// </summary>
-		Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel toChannel);
+		Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel channel);
 
 		/// <summary>
 		/// Cancels importing to a channel that we're currently making archived messages in
 		/// </summary>
-		Task<BotReturn> CancelImportingToChannelAsync(IChannel toChannel);
+		Task<BotReturn> CancelImportingToChannelAsync(IChannel channel);
 
 		/// <summary>
 		/// Removes all messages we ever archived from the specified channel.

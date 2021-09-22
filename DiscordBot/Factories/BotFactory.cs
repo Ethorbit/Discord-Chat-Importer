@@ -1,8 +1,10 @@
 ﻿
+using System.Threading.Tasks;
 using Discord.Commands;
 using Discord.WebSocket;
-using System.Threading.Tasks;
 using Discord_Channel_Importer.DiscordBot.Commands;
+using Discord_Channel_Importer.DiscordBot.Settings;
+using Discord_Channel_Importer.DiscordBot.Importing;
 
 namespace Discord_Channel_Importer.DiscordBot.Factories
 {
@@ -22,7 +24,7 @@ namespace Discord_Channel_Importer.DiscordBot.Factories
 			socketConfig.LogLevel = Discord.LogSeverity.Error;
 #endif
 
-			var bot = new DiscordBot.Bot(new DiscordBot.Settings.BotSettings(new DiscordSocketClient(socketConfig), botToken), new DiscordBot.Importing.ChatImporter());
+			var bot = new Bot(new BotSettings(new DiscordSocketClient(socketConfig), botToken), new ChatImportManager(4));
 
 			var commandHandler = new CommandHandler(bot, new CommandService());
 			await commandHandler.StartAsync();

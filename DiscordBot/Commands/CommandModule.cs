@@ -10,6 +10,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 	{
 		private const GuildPermission _permissions = (GuildPermission.ManageMessages | GuildPermission.ManageChannels);
 
+
 		[Command("importer", RunMode = RunMode.Async)]
 		[Alias("importer help")]
 		public async Task ListCommands()
@@ -60,12 +61,25 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			{
 				BotReturn res = await this.Context.Bot.ImportMessagesFromURIToChannelAsync(uri, channel); //, this.Context);
 
+				if (res == BotReturn.MaxImportsReached)
+				{
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Too many imports!", "I'm way too busy handling the other imports right now, try again later."));
+					return;
+				}
+
+				if (res == BotReturn.ImporterExists)
+				{
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel.."));
+					return;
+				}
+
 				if (res == BotReturn.Success)
 				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Success!", "I finished the request.", Color.Green));
+					return;
 				}
 
-				if (res == BotReturn.Error)
+				if (res == BotReturn.ParseError)
 				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Error parsing the URL!", "There was an error parsing the text on the provided webpage. Reasons why this might happen:", Color.Red,
 						new EmbedField[] {
@@ -74,6 +88,8 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 							MessageFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
 						}
 					));
+
+					return;
 				}
 			}
 			catch (Exception e)
@@ -95,6 +111,12 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			try
 			{
 				BotReturn res = await this.Context.Bot.CancelImportingToChannelAsync(channel);
+
+				if (res == BotReturn.ImporterDoesntExist)
+				{
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Not importing!", "I am not importing messages to that channel.", Color.Red));
+					return;
+				}
 			}
 			catch (Exception e)
 			{

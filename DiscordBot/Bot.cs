@@ -5,6 +5,8 @@ using Discord_Channel_Importer.DiscordBot.Importing;
 using Discord_Channel_Importer.Utilities;
 using Discord_Channel_Importer.DiscordBot.ImportStructures;
 using Discord_Channel_Importer.DiscordBot.Settings;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
@@ -14,14 +16,13 @@ namespace Discord_Channel_Importer.DiscordBot
 	public class Bot : IBot
 	{
 		public event EventHandler<EventArgs> Logged_In;
-
 		public BotSettings Settings { get; }
-		public IChatImporter ChatImporter { get; }
+		public ChatImportManager ChatImportManager { get; }
 
-		public Bot(BotSettings settings, IChatImporter importer)
+		public Bot(BotSettings settings, ChatImportManager importManager)
 		{
 			this.Settings = settings;
-			this.ChatImporter = importer;
+			this.ChatImportManager = importManager;
 		}
 
 		public async Task StartAsync()
@@ -34,29 +35,57 @@ namespace Discord_Channel_Importer.DiscordBot
 				this.Logged_In(this, null);
 		}
 
-		public async Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel toChannel)
+		/// <inheritdoc cref="IBot.ImportMessagesFromURIToChannelAsync"/>
+		/// <param name="uri"></param>
+		/// <param name="toChannel"></param>
+		/// <returns>
+		/// BotReturn.ImporterExists, BotReturn.MaxImportsReached, BotReturn.ParseError, BotReturn.Success
+		/// </returns>
+		public async Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel channel)
 		{
+			if (this.ChatImportManager.ChannelHasImporter(channel))
+				return BotReturn.ImporterExists;
+
+			if (this.ChatImportManager.HasMaxImporters)
+				return BotReturn.MaxImportsReached;
+
 			try
 			{
 				object exportedObj = await Web.GetJsonFromURIAsync(uri, typeof(ExportedChannel));
 				var exportedChannel = (ExportedChannel)exportedObj;
 
-				// TODO: initialize ChatImporter and tell it to import all messages from exportedChannel
+				ChatImporter importer = this.ChatImportManager.AddImporter(channel);
+				// TODO: start the import process.
 
 				return BotReturn.Success;
 			}
 			catch 
 			{
-				return BotReturn.Error;
+				return BotReturn.ParseError;
 			}
 		}
 
-		public async Task<BotReturn> CancelImportingToChannelAsync(IChannel toChannel)
+		/// <inheritdoc cref="IBot.CancelImportingToChannelAsync"/>
+		/// <param name="uri"></param>
+		/// <param name="toChannel"></param>
+		/// <returns>
+		/// BotReturn.ImporterDoesntExist, BotReturn.Success
+		/// </returns>
+		public async Task<BotReturn> CancelImportingToChannelAsync(IChannel channel)
 		{
-			// TODO: show message on success after successfully cancelling it
+			if (!this.ChatImportManager.ChannelHasImporter(channel))
+				return BotReturn.ImporterDoesntExist;
+
+			this.ChatImportManager.RemoveImporter(channel);
 			return BotReturn.Success;
 		}
 
+		/// <inheritdoc cref="IBot.RemoveArchivedMessagesFromChannelAsync"/>
+		/// <param name="uri"></param>
+		/// <param name="toChannel"></param>
+		/// <returns>
+		/// BotReturn.Success
+		/// </returns>
 		public async Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(IChannel channel)
 		{
 			await this.CancelImportingToChannelAsync(channel);
