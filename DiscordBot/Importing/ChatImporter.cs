@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord_Channel_Importer.DiscordBot.Factories;
-using Discord_Channel_Importer.DiscordBot.ImportStructures;
+using Discord_Channel_Importer.DiscordBot.Export.Structures;
 using System;
 using System.Timers;
 

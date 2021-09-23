@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Discord_Channel_Importer.DiscordBot.Importing;
 using Discord_Channel_Importer.Utilities;
-using Discord_Channel_Importer.DiscordBot.ImportStructures;
+using Discord_Channel_Importer.DiscordBot.Export;
 using Discord_Channel_Importer.DiscordBot.Settings;
 using Discord.WebSocket;
 

@@ -1,6 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Discord_Channel_Importer.DiscordBot.ImportStructures;
+using Discord_Channel_Importer.DiscordBot.Export;
 using System.Collections.Generic;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing

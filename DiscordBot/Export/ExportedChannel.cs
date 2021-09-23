@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Discord_Channel_Importer.DiscordBot.Export.Structures;
+using System.Collections.Generic;
 
-namespace Discord_Channel_Importer.DiscordBot.ImportStructures
+namespace Discord_Channel_Importer.DiscordBot.Export
 {
 	/// <summary>
 	///	Contains the exported stuff necessary for making archives

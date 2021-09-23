@@ -1,4 +1,4 @@
-﻿namespace Discord_Channel_Importer.DiscordBot.ImportStructures
+﻿namespace Discord_Channel_Importer.DiscordBot.Export.Structures
 {
 	public struct Guild
 	{
