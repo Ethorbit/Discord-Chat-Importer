@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
 using Discord_Channel_Importer.DiscordBot.Importing;
 using Discord_Channel_Importer.Utilities;
 using Discord_Channel_Importer.DiscordBot.ImportStructures;
 using Discord_Channel_Importer.DiscordBot.Settings;
-using System.Collections;
-using System.Collections.Generic;
+using Discord.WebSocket;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
@@ -41,7 +39,7 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// <returns>
 		/// BotReturn.ImporterExists, BotReturn.MaxImportsReached, BotReturn.ParseError, BotReturn.Success
 		/// </returns>
-		public async Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel channel)
+		public async Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, ISocketMessageChannel channel)
 		{
 			if (this.ChatImportManager.ChannelHasImporter(channel))
 				return BotReturn.ImporterExists;
@@ -54,7 +52,7 @@ namespace Discord_Channel_Importer.DiscordBot
 				object exportedObj = await Web.GetJsonFromURIAsync(uri, typeof(ExportedChannel));
 				var exportedChannel = (ExportedChannel)exportedObj;
 
-				ChatImporter importer = this.ChatImportManager.AddImporter(channel);
+				ChatImporter importer = this.ChatImportManager.AddImporter(channel, exportedChannel);
 				// TODO: start the import process.
 
 				return BotReturn.Success;
@@ -71,7 +69,7 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// <returns>
 		/// BotReturn.ImporterDoesntExist, BotReturn.Success
 		/// </returns>
-		public async Task<BotReturn> CancelImportingToChannelAsync(IChannel channel)
+		public async Task<BotReturn> CancelImportingToChannelAsync(ISocketMessageChannel channel)
 		{
 			if (!this.ChatImportManager.ChannelHasImporter(channel))
 				return BotReturn.ImporterDoesntExist;
@@ -86,7 +84,7 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// <returns>
 		/// BotReturn.Success
 		/// </returns>
-		public async Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(IChannel channel)
+		public async Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(ISocketMessageChannel channel)
 		{
 			await this.CancelImportingToChannelAsync(channel);
 

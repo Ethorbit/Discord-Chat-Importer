@@ -1,4 +1,6 @@
-﻿
+﻿using Discord.WebSocket;
+using Discord_Channel_Importer.DiscordBot.ImportStructures;
+using System.Timers;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
@@ -7,6 +9,10 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	/// </summary>
 	public interface IChatImporter
 	{
-		
-	}
+		public IChatImporterSettings Settings { get; }
+		public bool IsFinished { get; }
+
+		public void StartImport();
+		public void StopImport();
+	}	
 }

@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using Discord;
+using Discord.WebSocket;
+using Discord_Channel_Importer.DiscordBot.ImportStructures;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
 	/// <summary>
-	/// Manages ChatImporters per channel, with max limit
+	/// Manages ChatImporters per channel, with a custom max allowed limit and auto import delays
 	/// </summary>
 	public class ChatImportManager : IChatImportManager
 	{
@@ -22,27 +24,35 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			this.Importers = existingImporters ?? new Dictionary<IChannel, ChatImporter>();
 		}
 
-		public bool ChannelHasImporter(IChannel channel)
+		public bool ChannelHasImporter(ISocketMessageChannel channel)
 		{
 			return this.Importers.ContainsKey(channel);
 		}
 
-		public ChatImporter AddImporter(IChannel channel)
+		public void ConfigureDelays(double delay)
+		{
+			foreach (ChatImporter importer in this.Importers.Values)
+			{
+				importer.Settings.ImportTimer.Interval = (delay * 1000);
+			}
+		}
+
+		public ChatImporter AddImporter(ISocketMessageChannel channel, ExportedChannel export)
 		{
 			if (this.ChannelHasImporter(channel) || this.HasMaxImporters) 
 				return this.GetImporter(channel);
 
-			var newImporter = new ChatImporter();
+			var newImporter = new ChatImporter(new ChatImporterSettings(channel, export));
 			this.Importers.Add(channel, newImporter);
 			return newImporter;
 		}
 
-		public void RemoveImporter(IChannel channel)
+		public void RemoveImporter(ISocketMessageChannel channel)
 		{
 			this.Importers.Remove(channel);
 		}
 
-		public ChatImporter GetImporter(IChannel channel)
+		public ChatImporter GetImporter(ISocketMessageChannel channel)
 		{
 			return this.Importers[channel];
 		}

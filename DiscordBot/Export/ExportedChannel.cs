@@ -9,6 +9,6 @@ namespace Discord_Channel_Importer.DiscordBot.ImportStructures
 	{
 		public Guild Guild { get; set; }
 		public Channel Channel { get; set; }
-		public List<Message> Messages { get; set; } 
+		public Stack<Message> Messages { get; set; } 
 	}
 }

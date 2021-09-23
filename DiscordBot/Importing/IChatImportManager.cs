@@ -1,7 +1,7 @@
 ﻿using Discord;
-using System;
+using Discord.WebSocket;
+using Discord_Channel_Importer.DiscordBot.ImportStructures;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
@@ -14,12 +14,12 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		public bool HasMaxImporters { get; }
 
 
-		public bool ChannelHasImporter(IChannel channel);
+		public bool ChannelHasImporter(ISocketMessageChannel channel);
 
-		public ChatImporter AddImporter(IChannel channel);
+		public ChatImporter AddImporter(ISocketMessageChannel channel, ExportedChannel export);
 
-		public ChatImporter GetImporter(IChannel channel);
+		public ChatImporter GetImporter(ISocketMessageChannel channel);
 
-		public void RemoveImporter(IChannel channel);
+		public void RemoveImporter(ISocketMessageChannel channel);
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using Discord_Channel_Importer.DiscordBot.Factories;
 using System;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 
 		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer import", RunMode = RunMode.Async)]
-		public async Task ImportMessages(string url = "", IChannel channel = null)
+		public async Task ImportMessages(string url = "", ISocketMessageChannel channel = null)
 		{
 			#region Attempt
 			if (url.Length <= 0)
@@ -55,29 +56,22 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			}
 			#endregion
 
-			await ReplyAsync(null, false, MessageFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
+			IUserMessage WaitMsg = await ReplyAsync(null, false, MessageFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
 
 			try
 			{
 				BotReturn res = await this.Context.Bot.ImportMessagesFromURIToChannelAsync(uri, channel); //, this.Context);
 
 				if (res == BotReturn.MaxImportsReached)
-				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Too many imports!", "I'm way too busy handling the other imports right now, try again later."));
-					return;
-				}
 
 				if (res == BotReturn.ImporterExists)
-				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel.."));
-					return;
-				}
-
+				
 				if (res == BotReturn.Success)
-				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Success!", "I finished the request.", Color.Green));
-					return;
-				}
+
+				await WaitMsg.DeleteAsync();
 
 				if (res == BotReturn.ParseError)
 				{
@@ -100,7 +94,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 
 		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer cancel", RunMode = RunMode.Async)]
-		public async Task CancelMessageImport(IChannel channel)
+		public async Task CancelMessageImport(ISocketMessageChannel channel)
 		{
 			if (channel == null)
 			{
@@ -126,7 +120,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 
 		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer undo", RunMode=RunMode.Async)]
-		public async Task RemoveImportedMessages(IChannel channel)
+		public async Task RemoveImportedMessages(ISocketMessageChannel channel)
 		{
 			if (channel == null)
 			{

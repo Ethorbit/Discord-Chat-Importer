@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Discord;
+using Discord.WebSocket;
 using Discord_Channel_Importer.DiscordBot.Importing;
 using Discord_Channel_Importer.DiscordBot.Settings;
 
@@ -23,17 +23,17 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// Parses a Discord channel's json and generates embeds based off it, 
 		/// which it sends off to the provided channel.
 		/// </summary>
-		Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, IChannel channel);
+		Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, ISocketMessageChannel channel);
 
 		/// <summary>
 		/// Cancels importing to a channel that we're currently making archived messages in
 		/// </summary>
-		Task<BotReturn> CancelImportingToChannelAsync(IChannel channel);
+		Task<BotReturn> CancelImportingToChannelAsync(ISocketMessageChannel channel);
 
 		/// <summary>
 		/// Removes all messages we ever archived from the specified channel.
 		/// </summary>
-		Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(IChannel channel);
+		Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(ISocketMessageChannel channel);
 	}
 
 }
