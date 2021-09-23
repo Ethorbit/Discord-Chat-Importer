@@ -34,12 +34,11 @@ namespace Discord_Channel_Importer.DiscordBot
 		}
 
 		/// <inheritdoc cref="IBot.ImportMessagesFromURIToChannelAsync"/>
-		/// <param name="uri"></param>
-		/// <param name="toChannel"></param>
 		/// <returns>
 		/// BotReturn.ImporterExists, BotReturn.MaxImportsReached, BotReturn.ParseError, BotReturn.Success
 		/// </returns>
-		public async Task<BotReturn> ImportMessagesFromURIToChannelAsync(Uri uri, ISocketMessageChannel channel)
+		/// <param name="importReady">Callback function to retrieve the created ChatImporter</param>
+		public async Task<BotReturn> GetChatImporterFromUriAsync(Uri uri, ISocketMessageChannel channel, Action<ChatImporter> callback)
 		{
 			if (this.ChatImportManager.ChannelHasImporter(channel))
 				return BotReturn.ImporterExists;
@@ -53,7 +52,7 @@ namespace Discord_Channel_Importer.DiscordBot
 				var exportedChannel = (ExportedChannel)exportedObj;
 
 				ChatImporter importer = this.ChatImportManager.AddImporter(channel, exportedChannel);
-				// TODO: start the import process.
+				callback(importer);
 
 				return BotReturn.Success;
 			}

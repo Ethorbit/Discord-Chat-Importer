@@ -2,6 +2,7 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Discord_Channel_Importer.DiscordBot.Factories;
+using Discord_Channel_Importer.DiscordBot.Importing;
 using System;
 using System.Threading.Tasks;
 
@@ -66,7 +67,22 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 
 			try
 			{
-				BotReturn res = await this.Context.Bot.ImportMessagesFromURIToChannelAsync(uri, channel); //, this.Context);
+				BotReturn res = await this.Context.Bot.GetChatImporterFromUriAsync(uri, channel, new Action<ChatImporter>(async (ChatImporter importer) =>
+				{
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Import Confirmation", 
+									$@"Are you sure you want to do this? With {Context.Bot.ChatImportManager.Importers.Count} 
+									concurrent imports, this will take an estimated {importer.Settings.ExportedChannel.Messages.Count} to complete.
+																		
+									You may want to go back and hide this channel first so that users aren't spammed.", 
+									Color.Orange));
+
+					//importer.StartImport();
+
+					importer.FinishImports += async (object e, ImportEventArgs args) =>
+					{
+						await ReplyAsync(Context.User.Mention + " importing for channel: " + channel.Name + $" has finished.");
+					};
+				}));
 
 				if (res == BotReturn.MaxImportsReached)
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Too many imports!", "I'm too busy handling the other imports right now, try again later."));
