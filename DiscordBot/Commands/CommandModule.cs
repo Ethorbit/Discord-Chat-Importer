@@ -29,6 +29,17 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			));
 		}
 
+
+		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
+		[Command("importer import", RunMode = RunMode.Async)]
+		public async Task ImportMessages(string url, string channel = "")
+		{
+			if (channel.Length <= 0)
+				await ReplyAsync(null, false, MessageFactory.CreateEmbed("Channel required!", "You want to import messages into a channel, but what channel? You forgot to tag the channel.. (#my-channel)", Color.Red));
+			else
+				await ReplyAsync(null, false, MessageFactory.CreateEmbed("Invalid channel!", "What is that? You need to tag the channel (#my-channel)", Color.Red));
+		}
+
 		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer import", RunMode = RunMode.Async)]
 		public async Task ImportMessages(string url = "", ISocketMessageChannel channel = null)
@@ -37,12 +48,6 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			if (url.Length <= 0)
 			{
 				await ReplyAsync(null, false, MessageFactory.CreateEmbed("URL required!", "How am I supposed to know what you want? Provide a URL to the json containing the channel with messages.", Color.Red));
-				return;
-			}
-
-			if (channel == null)
-			{
-				await ReplyAsync(null, false, MessageFactory.CreateEmbed("Channel required!", "You want to import messages into a channel, but what channel? You forgot to tag the channel.. (#my-channel)", Color.Red));
 				return;
 			}
 
@@ -56,6 +61,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			}
 			#endregion
 
+			channel = channel as ISocketMessageChannel;
 			IUserMessage WaitMsg = await ReplyAsync(null, false, MessageFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
 
 			try
@@ -63,11 +69,11 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 				BotReturn res = await this.Context.Bot.ImportMessagesFromURIToChannelAsync(uri, channel); //, this.Context);
 
 				if (res == BotReturn.MaxImportsReached)
-					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Too many imports!", "I'm way too busy handling the other imports right now, try again later."));
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Too many imports!", "I'm too busy handling the other imports right now, try again later."));
 
 				if (res == BotReturn.ImporterExists)
-					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel.."));
-				
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel, please wait until I finish.."));
+
 				if (res == BotReturn.Success)
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Success!", "I finished the request.", Color.Green));
 
@@ -77,9 +83,9 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Error parsing the URL!", "There was an error parsing the text on the provided webpage. Reasons why this might happen:", Color.Red,
 						new EmbedField[] {
-							MessageFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
-							MessageFactory.CreateEmbedField("Incompatible .json", "The .json's structure does not match the requirements, you must export the channel's .json with DiscordChatExporter because I do not support anything else.", true),
-							MessageFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
+						MessageFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
+						MessageFactory.CreateEmbedField("Incompatible .json", "The .json's structure does not match the requirements, you must export the channel's .json with DiscordChatExporter because I do not support anything else.", true),
+						MessageFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
 						}
 					));
 
@@ -89,8 +95,9 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
-			}
+			}	
 		}
+
 
 		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer cancel", RunMode = RunMode.Async)]
