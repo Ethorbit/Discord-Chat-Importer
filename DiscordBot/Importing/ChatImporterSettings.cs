@@ -7,7 +7,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	/// <summary>
 	/// Settings for a ChatImporter
 	/// </summary>
-	public class ChatImporterSettings : IChatImporterSettings
+	internal class ChatImporterSettings : IChatImporterSettings
 	{
 		public Timer ImportTimer { get; }
 		public ISocketMessageChannel ImportChannel { get; }
@@ -17,7 +17,6 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		{
 			this.ImportChannel = importChannel;
 			this.ExportedChannel = exportedChannel;
-			this.ImportTimer = new Timer(1000);
 		}
 		public ChatImporterSettings(ISocketMessageChannel importChannel, ExportedChannel exportedChannel, Timer importTimer)
 		{

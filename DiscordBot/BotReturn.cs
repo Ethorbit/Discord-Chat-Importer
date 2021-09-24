@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Possible return values from Bot operations
 	/// </summary>
-	public enum BotReturn
+	internal enum BotReturn
 	{
 		Success,
 		Error,

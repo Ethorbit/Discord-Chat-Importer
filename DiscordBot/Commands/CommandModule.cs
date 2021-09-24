@@ -62,7 +62,6 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			}
 			#endregion
 
-			channel = channel as ISocketMessageChannel;
 			IUserMessage WaitMsg = await ReplyAsync(null, false, MessageFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
 
 			try

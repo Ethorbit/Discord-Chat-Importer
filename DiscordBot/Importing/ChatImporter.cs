@@ -6,17 +6,22 @@ using System.Timers;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
-	public class ChatImporter : IChatImporter
+	/// <summary>
+	/// A Discord channel chat importer
+	/// </summary>
+	internal class ChatImporter : IChatImporter
 	{
 		public event EventHandler<ImportEventArgs> FinishImports;
+		public Timer ImportTimer { get; }
 		public IChatImporterSettings Settings { get; }
 		public bool IsFinished { get; private set; }
 
 		public ChatImporter(IChatImporterSettings settings)
 		{
 			this.Settings = settings;
-			this.Settings.ImportTimer.AutoReset = true;
-			this.Settings.ImportTimer.Elapsed += ImportTimer_Elapsed;
+			this.ImportTimer = settings.ImportTimer ?? new Timer();
+			this.ImportTimer.AutoReset = true;
+			this.ImportTimer.Elapsed += ImportTimer_Elapsed;
 		}
 
 		~ChatImporter()

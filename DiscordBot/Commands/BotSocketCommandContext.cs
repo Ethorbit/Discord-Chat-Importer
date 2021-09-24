@@ -13,7 +13,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 		//
 		// Summary:
 		//     Gets the Discord Bot itself
-		public DiscordBot.Bot Bot { get; }
+		internal DiscordBot.Bot Bot { get; }
 
 		//
 		// Summary:
@@ -26,7 +26,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 		//
 		//   msg:
 		//     The underlying message.
-		public BotSocketCommandContext(DiscordBot.Bot bot, SocketUserMessage msg)
+		internal BotSocketCommandContext(DiscordBot.Bot bot, SocketUserMessage msg)
 		{
 			Bot = bot;
 			Client = bot.Settings.Client;

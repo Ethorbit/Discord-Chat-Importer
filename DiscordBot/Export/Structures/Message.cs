@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 namespace Discord_Channel_Importer.DiscordBot.Export.Structures
 {
-	public struct Message
+	internal struct Message
 	{
 		public bool IsPinned { get; set; }
 

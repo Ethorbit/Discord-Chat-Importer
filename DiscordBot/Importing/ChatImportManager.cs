@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Discord;
 using Discord.WebSocket;
 using Discord_Channel_Importer.DiscordBot.Export;
@@ -6,22 +7,22 @@ using Discord_Channel_Importer.DiscordBot.Export;
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
 	/// <summary>
-	/// Manages ChatImporters per channel, with a custom max allowed limit and auto import delays
+	/// Manages IChatImporters, with a custom max allowed limit and import delays
 	/// </summary>
-	public class ChatImportManager : IChatImportManager
+	internal class ChatImportManager
 	{
-		public Dictionary<IChannel, ChatImporter> Importers { get; }
-		public int MaxSimultaneousImports { get; }
-		public bool HasMaxImporters { get { return this.Importers.Count >= this.MaxSimultaneousImports; } }
+		public Dictionary<IChannel, IChatImporter> Importers { get; }
+		public ChatImportManagerSettings Settings { get; }
+		public bool HasMaxImporters { get { return this.Importers.Count >= this.Settings.MaxSimultaneousImports; } }
 
-		public ChatImportManager(int maxSimultaneousImports, Dictionary<IChannel, ChatImporter> existingImporters = null)
+		public ChatImportManager(ChatImportManagerSettings settings, Dictionary<IChannel, IChatImporter> existingImporters = null)
 		{
-			this.MaxSimultaneousImports = maxSimultaneousImports;
+			this.Settings = settings;
 
 			if (existingImporters != null)
 				existingImporters.Clear();
 
-			this.Importers = existingImporters ?? new Dictionary<IChannel, ChatImporter>();
+			this.Importers = existingImporters ?? new Dictionary<IChannel, IChatImporter>();
 		}
 
 		public bool ChannelHasImporter(ISocketMessageChannel channel)
@@ -29,30 +30,51 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			return this.Importers.ContainsKey(channel);
 		}
 
-		public void ConfigureDelays(double delay)
+		public void SetImporterIntervals(double delay)
 		{
-			foreach (ChatImporter importer in this.Importers.Values)
+			foreach (IChatImporter importer in this.Importers.Values)
 			{
-				importer.Settings.ImportTimer.Interval = (delay * 1000);
+				importer.ImportTimer.Stop();
+				importer.ImportTimer.Interval = delay;
+				importer.ImportTimer.Start();
 			}
 		}
 
-		public ChatImporter AddImporter(ISocketMessageChannel channel, ExportedChannel export)
+		/// <summary>
+		///	Adds another importer to the Importer Stack
+		/// </summary>
+		/// <returns>The IChatImporter, null if it couldn't be added.</returns>
+		public IChatImporter AddImporter(ISocketMessageChannel channel, ExportedChannel exportedChannel, IChatImporter importer = null)
 		{
-			if (this.ChannelHasImporter(channel) || this.HasMaxImporters) 
+			if (this.HasMaxImporters)
+				return null;
+
+			if (this.ChannelHasImporter(channel)) 
 				return this.GetImporter(channel);
 
-			var newImporter = new ChatImporter(new ChatImporterSettings(channel, export));
-			this.Importers.Add(channel, newImporter);
-			return newImporter;
+			importer = importer ?? new ChatImporter(new ChatImporterSettings(channel, exportedChannel));
+			this.Importers.Add(channel, importer);
+			this.SetImporterIntervals(this.Settings.ImportTime + (this.Settings.AddedTimeForEachImporter * this.Importers.Count));
+
+			return importer;
 		}
 
-		public void RemoveImporter(ISocketMessageChannel channel)
+		/// <summary>
+		/// Removes the Importer assigned to the specified channel from the Import Stack
+		/// </summary>
+		/// <returns>
+		/// false if there was no Importer for that channel.
+		/// </returns>
+		public bool RemoveImporter(ISocketMessageChannel channel)
 		{
-			this.Importers.Remove(channel);
+			return this.Importers.Remove(channel);
 		}
 
-		public ChatImporter GetImporter(ISocketMessageChannel channel)
+		/// <summary>
+		/// Gets the Importer that's assigned to the specified channel
+		/// </summary>
+		/// <returns>null if the channel had no Importer.</returns>
+		public IChatImporter GetImporter(ISocketMessageChannel channel)
 		{
 			return this.Importers[channel];
 		}

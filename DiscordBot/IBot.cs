@@ -6,24 +6,26 @@ using Discord_Channel_Importer.DiscordBot.Settings;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
-	public interface IBot
+	/// <summary>
+	/// Our custom Discord bot
+	/// </summary>
+	internal interface IBot
 	{
-		public BotSettings Settings { get; }
-
-		public ChatImportManager ChatImportManager { get; }
+		BotSettings Settings { get; }
+		ChatImportManager ChatImportManager { get; }
 
 
 		/// <summary>
 		/// Starts the bot up.
 		/// </summary>
 		/// <returns></returns>
-		public Task StartAsync();
+		Task StartAsync();
 
 		/// <summary>
 		/// Parses a Discord channel's json and generates embeds based off it, 
 		/// which it creates and returns as a ChatImporter object.
 		/// </summary>
-		public Task<BotReturn> GetChatImporterFromUriAsync(Uri uri, ISocketMessageChannel channel, Action<ChatImporter> callback);
+		Task<BotReturn> GetChatImporterFromUriAsync(Uri uri, ISocketMessageChannel channel, Action<IChatImporter> callback);
 
 		/// <summary>
 		/// Uses the provided ChatImporter on the channel
@@ -33,12 +35,12 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// <summary>
 		/// Cancels importing to a channel that we're currently making archived messages in
 		/// </summary>
-		public Task<BotReturn> CancelImportingToChannelAsync(ISocketMessageChannel channel);
+		Task<BotReturn> CancelImportingToChannelAsync(ISocketMessageChannel channel);
 
 		/// <summary>
 		/// Removes all messages we ever archived from the specified channel.
 		/// </summary>
-		public Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(ISocketMessageChannel channel);
+		Task<BotReturn> RemoveArchivedMessagesFromChannelAsync(ISocketMessageChannel channel);
 	}
 
 }

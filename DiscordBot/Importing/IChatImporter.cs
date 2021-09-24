@@ -1,18 +1,21 @@
-﻿using Discord.WebSocket;
-using Discord_Channel_Importer.DiscordBot.Export;
-using System.Timers;
+﻿using System.Timers;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
 	/// <summary>
-	/// A Discord chat importer
+	/// For Discord channel chat importers
 	/// </summary>
-	public interface IChatImporter
+	internal interface IChatImporter
 	{
-		public IChatImporterSettings Settings { get; }
-		public bool IsFinished { get; }
+		Timer ImportTimer { get; }
 
-		public void StartImport();
-		public void StopImport();
+		IChatImporterSettings Settings { get; }
+
+		bool IsFinished { get; }
+
+
+		void StartImport();
+
+		void StopImport();
 	}	
 }

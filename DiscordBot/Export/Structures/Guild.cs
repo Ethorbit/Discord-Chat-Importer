@@ -1,6 +1,6 @@
 ﻿namespace Discord_Channel_Importer.DiscordBot.Export.Structures
 {
-	public struct Guild
+	internal struct Guild
 	{
 		public ulong Id { get; set; }
 		public string Name { get; set; }

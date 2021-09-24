@@ -1,6 +1,6 @@
 ﻿namespace Discord_Channel_Importer.DiscordBot.Export.Structures
 {
-	public struct Author
+	internal struct Author
 	{
 		public string AvatarUrl { get; set; }
 

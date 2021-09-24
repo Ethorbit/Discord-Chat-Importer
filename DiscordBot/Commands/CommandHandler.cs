@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Discord_Channel_Importer.DiscordBot.Commands
 {
-	public class CommandHandler
+	internal class CommandHandler
 	{
 		private readonly DiscordBot.Bot _bot;
 		private readonly DiscordSocketClient _client;

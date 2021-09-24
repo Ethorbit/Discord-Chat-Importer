@@ -8,7 +8,7 @@ using Discord_Channel_Importer.DiscordBot.Importing;
 
 namespace Discord_Channel_Importer.DiscordBot.Factories
 {
-	public static class BotFactory
+	internal static class BotFactory
 	{
 		/// <summary>
 		/// Creates our custom Discord bot.
@@ -24,7 +24,7 @@ namespace Discord_Channel_Importer.DiscordBot.Factories
 			socketConfig.LogLevel = Discord.LogSeverity.Error;
 #endif
 
-			var bot = new Bot(new BotSettings(new DiscordSocketClient(socketConfig), botToken), new ChatImportManager(4));
+			var bot = new Bot(new BotSettings(new DiscordSocketClient(socketConfig), botToken), new ChatImportManager(new ChatImportManagerSettings(1, 1, 10)));
 
 			var commandHandler = new CommandHandler(bot, new CommandService());
 			await commandHandler.StartAsync();

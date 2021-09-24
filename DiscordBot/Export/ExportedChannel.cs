@@ -6,7 +6,7 @@ namespace Discord_Channel_Importer.DiscordBot.Export
 	/// <summary>
 	///	Contains the exported stuff necessary for making archives
 	/// </summary>
-	public struct ExportedChannel
+	internal struct ExportedChannel
 	{
 		public Guild Guild { get; set; }
 		public Channel Channel { get; set; }

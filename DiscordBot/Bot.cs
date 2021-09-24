@@ -11,7 +11,7 @@ namespace Discord_Channel_Importer.DiscordBot
 	/// <summary>
 	/// Our Custom Discord bot.
 	/// </summary>
-	public class Bot : IBot
+	internal class Bot : IBot
 	{
 		public event EventHandler<EventArgs> Logged_In;
 		public BotSettings Settings { get; }
@@ -38,7 +38,7 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// BotReturn.ImporterExists, BotReturn.MaxImportsReached, BotReturn.ParseError, BotReturn.Success
 		/// </returns>
 		/// <param name="importReady">Callback function to retrieve the created ChatImporter</param>
-		public async Task<BotReturn> GetChatImporterFromUriAsync(Uri uri, ISocketMessageChannel channel, Action<ChatImporter> callback)
+		public async Task<BotReturn> GetChatImporterFromUriAsync(Uri uri, ISocketMessageChannel channel, Action<IChatImporter> callback)
 		{
 			if (this.ChatImportManager.ChannelHasImporter(channel))
 				return BotReturn.ImporterExists;
@@ -51,7 +51,7 @@ namespace Discord_Channel_Importer.DiscordBot
 				object exportedObj = await Web.GetJsonFromURIAsync(uri, typeof(ExportedChannel));
 				var exportedChannel = (ExportedChannel)exportedObj;
 
-				ChatImporter importer = this.ChatImportManager.AddImporter(channel, exportedChannel);
+				IChatImporter importer = this.ChatImportManager.AddImporter(channel, exportedChannel);
 				callback(importer);
 
 				return BotReturn.Success;

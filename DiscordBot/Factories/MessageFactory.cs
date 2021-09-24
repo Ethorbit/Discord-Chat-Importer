@@ -2,7 +2,7 @@
 
 namespace Discord_Channel_Importer.DiscordBot.Factories
 { 
-	public static class MessageFactory
+	internal static class MessageFactory
 	{
 		/// <summary>
 		/// Creates a Discord EmbedField object for use in Embeds.
@@ -22,10 +22,12 @@ namespace Discord_Channel_Importer.DiscordBot.Factories
 		/// </summary>
 		public static Embed CreateEmbed(string title = null, string description = null, Color color = new Color(), EmbedField[] fields = null)
 		{
-			var embedBuilder = new EmbedBuilder();
-			embedBuilder.Title = title;
-			embedBuilder.Description = description;
-			embedBuilder.Color = color;
+			var embedBuilder = new EmbedBuilder()
+			{
+				Title = title,
+				Description = description,
+				Color = color
+			};
 
 			if (fields != null)
 			{

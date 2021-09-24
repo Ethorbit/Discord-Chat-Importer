@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Discord_Channel_Importer
 {
-	class Program
+	internal class Program
 	{
 		static void Main(string[] args)
 			=> new Program().MainAsync(args).GetAwaiter().GetResult();
@@ -23,8 +23,8 @@ namespace Discord_Channel_Importer
 				string token = (string)args.GetValue(0);
 
 				var discordBot = await DiscordBot.Factories.BotFactory.CreateBot(token);
-				discordBot.Logged_In += async (object sender, EventArgs e) => Task.Run(() => Console.WriteLine("Logged in."));	
-				Task.Run(() => Console.WriteLine("Logging in..."));
+				discordBot.Logged_In += async (object sender, EventArgs e) => await Task.Run(() => Console.WriteLine("Logged in."));	
+				await Task.Run(() => Console.WriteLine("Logging in..."));
 
 				try // Attempt to start our Discord bot
 				{
