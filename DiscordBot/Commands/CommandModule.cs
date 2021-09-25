@@ -64,33 +64,70 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 
 			IUserMessage WaitMsg = await ReplyAsync(null, false, MessageFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
 
+			var importCallback = new Action<IChatImporter>(async (IChatImporter importer) =>
+			{
+				IUserMessage reactMsg = await ReplyAsync(null, false, MessageFactory.CreateEmbed("Import Confirmation",
+								$@"Are you sure you want to do this? With {Context.Bot.ChatImportManager.Importers.Count} 
+								concurrent imports and {importer.Settings.ExportedChannel.Messages.Count} messages, this will take an estimated {importer.ImportTimer.Interval} seconds to complete.
+																		
+								You may want to go back and hide the channel first so that users aren't spammed.",
+								Color.Orange));
+
+				try
+				{
+					var checkEmoji = MessageFactory.CreateEmoji("✅");
+					var xEmoji = MessageFactory.CreateEmoji("❌");
+					await reactMsg.AddReactionsAsync(new IEmote[] { checkEmoji, xEmoji });
+
+					this.Context.Client.ReactionAdded += (Cacheable<IUserMessage, ulong> reactedMsg, ISocketMessageChannel arg2, SocketReaction arg3) =>
+					{
+						if (reactedMsg.Id == reactMsg.Id)
+						{
+							if (!arg3.User.IsSpecified)
+								return Task.CompletedTask;
+
+							var user = arg3.User.Value;
+							user = this.Context.Guild.GetUser(user.Id);
+					
+							if (user is IGuildUser userGuild && userGuild.GuildPermissions.Has(_permissions))
+							{
+								Console.WriteLine("You have the permissions!");
+
+								if (arg3.Emote.Name == checkEmoji.Name)
+								{
+									Console.WriteLine("TIME TO IMPORT!");
+								}	
+								else
+								{
+									Console.WriteLine("TIME TO CANCEL");
+								}
+							}
+						}
+
+						return Task.CompletedTask;
+					};
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine(e.Message);
+				}
+
+				//importer.StartImport();
+				importer.FinishImports += async (object e, ChatImporterEventArgs args) =>
+				{
+					await ReplyAsync(Context.User.Mention + " importing for channel: " + channel.Name + $" has finished.");
+				};
+			});
+
 			try
 			{
-				BotReturn res = await this.Context.Bot.GetChatImporterFromUriAsync(uri, channel, new Action<ChatImporter>(async (ChatImporter importer) =>
-				{
-					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Import Confirmation", 
-									$@"Are you sure you want to do this? With {Context.Bot.ChatImportManager.Importers.Count} 
-									concurrent imports, this will take an estimated {importer.Settings.ExportedChannel.Messages.Count} to complete.
-																		
-									You may want to go back and hide this channel first so that users aren't spammed.", 
-									Color.Orange));
-
-					//importer.StartImport();
-
-					importer.FinishImports += async (object e, ImportEventArgs args) =>
-					{
-						await ReplyAsync(Context.User.Mention + " importing for channel: " + channel.Name + $" has finished.");
-					};
-				}));
+				BotReturn res = await this.Context.Bot.GetChatImporterFromUriAsync(uri, channel, importCallback);
 
 				if (res == BotReturn.MaxImportsReached)
-					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Too many imports!", "I'm too busy handling the other imports right now, try again later."));
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Too many imports!", "I'm too busy handling the other imports right now, try again later.", Color.Red));
 
 				if (res == BotReturn.ImporterExists)
-					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel, please wait until I finish.."));
-
-				if (res == BotReturn.Success)
-					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Success!", "I finished the request.", Color.Green));
+					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel, please wait until I finish..", Color.Red));
 
 				await WaitMsg.DeleteAsync();
 
@@ -98,9 +135,9 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 				{
 					await ReplyAsync(null, false, MessageFactory.CreateEmbed("Error parsing the URL!", "There was an error parsing the text on the provided webpage. Reasons why this might happen:", Color.Red,
 						new EmbedField[] {
-						MessageFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
-						MessageFactory.CreateEmbedField("Incompatible .json", "The .json's structure does not match the requirements, you must export the channel's .json with DiscordChatExporter because I do not support anything else.", true),
-						MessageFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
+							MessageFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
+							MessageFactory.CreateEmbedField("Incompatible .json", "The .json's structure does not match the requirements, you must export the channel's .json with DiscordChatExporter because I do not support anything else.", true),
+							MessageFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
 						}
 					));
 
@@ -110,9 +147,8 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 			catch (Exception e)
 			{
 				Console.WriteLine(e.Message);
-			}	
+			}
 		}
-
 
 		[RequireUserPermissionWithError(_permissions, Group = "Permission")]
 		[Command("importer cancel", RunMode = RunMode.Async)]

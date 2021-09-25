@@ -39,5 +39,13 @@ namespace Discord_Channel_Importer.DiscordBot.Factories
 
 			return embedBuilder.Build(); 
 		}
+
+		/// <summary>
+		/// Creates a message emote.
+		/// </summary>
+		public static Emoji CreateEmoji(string emote)
+		{
+			return new Emoji(emote);
+		}
 	}
 }

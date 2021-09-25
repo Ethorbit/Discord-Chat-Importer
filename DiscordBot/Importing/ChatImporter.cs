@@ -11,7 +11,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	/// </summary>
 	internal class ChatImporter : IChatImporter
 	{
-		public event EventHandler<ImportEventArgs> FinishImports;
+		public event EventHandler<ChatImporterEventArgs> FinishImports;
 		public Timer ImportTimer { get; }
 		public IChatImporterSettings Settings { get; }
 		public bool IsFinished { get; private set; }
@@ -52,7 +52,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 				this.IsFinished = true;
 
 				if (this.FinishImports != null)
-					this.FinishImports(this, new ImportEventArgs(this.Settings.ImportChannel));
+					this.FinishImports(this, new ChatImporterEventArgs(this.Settings.ImportChannel));
 			}
 
 			Message msg = expChan.Messages.Peek();

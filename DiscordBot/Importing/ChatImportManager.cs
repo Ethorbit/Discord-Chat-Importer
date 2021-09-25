@@ -11,6 +11,8 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	/// </summary>
 	internal class ChatImportManager
 	{
+		public event EventHandler<ChatImportManagerEventArgs> ImportFinished;
+
 		public Dictionary<IChannel, IChatImporter> Importers { get; }
 		public ChatImportManagerSettings Settings { get; }
 		public bool HasMaxImporters { get { return this.Importers.Count >= this.Settings.MaxSimultaneousImports; } }
@@ -32,11 +34,19 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 
 		public void SetImporterIntervals(double delay)
 		{
+			int i = 1;
+
 			foreach (IChatImporter importer in this.Importers.Values)
 			{
-				importer.ImportTimer.Stop();
-				importer.ImportTimer.Interval = delay;
-				importer.ImportTimer.Start();
+				importer.ImportTimer.Interval = delay + i;
+
+				if (importer.ImportTimer.Enabled)
+				{
+					importer.ImportTimer.Stop();
+					importer.ImportTimer.Start();
+				}
+
+				i++;
 			}
 		}
 
@@ -56,7 +66,18 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			this.Importers.Add(channel, importer);
 			this.SetImporterIntervals(this.Settings.ImportTime + (this.Settings.AddedTimeForEachImporter * this.Importers.Count));
 
+			importer.FinishImports += Importer_FinishImports;
+
 			return importer;
+		}
+
+		private void Importer_FinishImports(object sender, ChatImporterEventArgs e)
+		{
+			if (sender is IChatImporter importer)
+			{
+				this.Importers.Remove(e.Channel);
+				this.ImportFinished(this, new ChatImportManagerEventArgs(e.Channel, importer));
+			}	
 		}
 
 		/// <summary>
