@@ -2,7 +2,7 @@
 
 namespace Discord_Channel_Importer.DiscordBot.Factories
 { 
-	internal static class MessageFactory
+	internal static class DiscordFactory
 	{
 		/// <summary>
 		/// Creates a Discord EmbedField object for use in Embeds.

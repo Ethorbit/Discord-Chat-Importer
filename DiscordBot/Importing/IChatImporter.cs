@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Discord.WebSocket;
+using Discord_Channel_Importer.DiscordBot.Export;
+using System;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
@@ -9,12 +12,11 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	internal interface IChatImporter
 	{
 		public event EventHandler<ChatImporterEventArgs> FinishImports;
-		Timer ImportTimer { get; }
-		IChatImporterSettings Settings { get; }
+		public ISocketMessageChannel Destination { get; }
+		public ExportedChannel Source { get; }
 		bool IsFinished { get; }
 
 
-		void StartImport();
-		void StopImport();
+		Task ImportNextMessage();
 	}	
 }

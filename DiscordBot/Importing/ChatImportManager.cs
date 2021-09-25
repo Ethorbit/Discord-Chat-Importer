@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Discord_Channel_Importer.DiscordBot.Export;
@@ -13,18 +15,47 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	{
 		public event EventHandler<ChatImportManagerEventArgs> ImportFinished;
 
-		public Dictionary<IChannel, IChatImporter> Importers { get; }
-		public ChatImportManagerSettings Settings { get; }
-		public bool HasMaxImporters { get { return this.Importers.Count >= this.Settings.MaxSimultaneousImports; } }
+		/// <summary>
+		/// The time it takes for our ImportLoop to iterate each stored Importer
+		/// </summary>
+		public int TimeForEachImporter { get; set; } = 500;
+		public Dictionary<IChannel, IChatImporter> Importers { get; } = new Dictionary<IChannel, IChatImporter>();
 
-		public ChatImportManager(ChatImportManagerSettings settings, Dictionary<IChannel, IChatImporter> existingImporters = null)
+		private Task ImportLoop { get; set; }
+		private CancellationTokenSource _importCancellationSource { get; set; } = new CancellationTokenSource();
+
+		/// <summary>
+		/// Starts automatically using our Importers to import stuff
+		/// </summary>
+		public async Task StartImportLoopAsync()
 		{
-			this.Settings = settings;
+			if (this.ImportLoop == null || this.ImportLoop.IsCanceled)
+			{
+				var cancellationToken = _importCancellationSource.Token;
+				cancellationToken.ThrowIfCancellationRequested();
 
-			if (existingImporters != null)
-				existingImporters.Clear();
+				this.ImportLoop = Task.Run(async () =>
+				{
+					while (true)
+					{
+						foreach (IChatImporter importer in this.Importers.Values)
+						{
+							await Task.Delay(this.TimeForEachImporter);
+							await importer.ImportNextMessage();
+						}
+					}
+				}, cancellationToken);
+			}
 
-			this.Importers = existingImporters ?? new Dictionary<IChannel, IChatImporter>();
+			await this.ImportLoop.ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Stops automatically importing
+		/// </summary>
+		public void StopImportLoop()
+		{
+			_importCancellationSource.Cancel();
 		}
 
 		public bool ChannelHasImporter(ISocketMessageChannel channel)
@@ -32,33 +63,12 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			return this.Importers.ContainsKey(channel);
 		}
 
-		public void SetImporterIntervals(double delay)
-		{
-			int i = 1;
-
-			foreach (IChatImporter importer in this.Importers.Values)
-			{
-				importer.ImportTimer.Interval = delay + i;
-
-				if (importer.ImportTimer.Enabled)
-				{
-					importer.ImportTimer.Stop();
-					importer.ImportTimer.Start();
-				}
-
-				i++;
-			}
-		}
-
 		/// <summary>
-		///	Adds another importer to the Importer Stack
+		///	Adds another importer to the Importer Stack and will start using it.
 		/// </summary>
 		/// <returns>The IChatImporter, null if it couldn't be added.</returns>
 		public IChatImporter AddImporter(ISocketMessageChannel channel, ExportedChannel exportedChannel, IChatImporter importer = null)
 		{
-			if (this.HasMaxImporters)
-				return null;
-
 			if (this.ChannelHasImporter(channel)) 
 				return this.GetImporter(channel);
 
@@ -69,15 +79,6 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			importer.FinishImports += Importer_FinishImports;
 
 			return importer;
-		}
-
-		private void Importer_FinishImports(object sender, ChatImporterEventArgs e)
-		{
-			if (sender is IChatImporter importer)
-			{
-				this.Importers.Remove(e.Channel);
-				this.ImportFinished(this, new ChatImportManagerEventArgs(e.Channel, importer));
-			}	
 		}
 
 		/// <summary>
@@ -98,6 +99,43 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		public IChatImporter GetImporter(ISocketMessageChannel channel)
 		{
 			return this.Importers[channel];
+		}
+
+		/// <summary>
+		/// Gets the estimated time when an Importer will be finished (this will immediately be wrong if a new Importer is added)
+		/// </summary>
+		public TimeSpan GetEstimatedImportTime(ISocketMessageChannel channel)
+		{
+			var importer = this.GetImporter(channel);
+			return TimeSpan.FromSeconds((this.TimeForEachImporter * this.Importers.Count) * importer.Source.Messages.Count);
+		}
+
+		/// <summary>
+		/// Gets the estimated time when all Importers will be finished (this will immediately be wrong if a new Importer is added)
+		/// </summary>
+		/// <returns></returns>
+		public TimeSpan GetEstimatedImportTime()
+		{
+			int total_messages = 0;
+
+			foreach (IChatImporter importer in this.Importers.Values)
+			{
+				total_messages += importer.Source.Messages.Count;
+			}
+
+			return TimeSpan.FromSeconds((this.TimeForEachImporter * this.Importers.Count) * total_messages);
+		}
+		
+		/// <summary>
+		/// When one of our Importers has completed
+		/// </summary>
+		private void Importer_FinishImports(object sender, ChatImporterEventArgs e)
+		{
+			if (sender is IChatImporter importer)
+			{
+				this.Importers.Remove(e.Channel);
+				this.ImportFinished(this, new ChatImportManagerEventArgs(e.Channel, importer));
+			}
 		}
 	}
 }
