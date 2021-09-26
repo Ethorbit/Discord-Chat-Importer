@@ -20,34 +20,31 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		/// </summary>
 		public int TimeForEachImporter { get; set; } = 500;
 		public Dictionary<IChannel, IChatImporter> Importers { get; } = new Dictionary<IChannel, IChatImporter>();
-
-		private Task ImportLoop { get; set; }
-		private CancellationTokenSource _importCancellationSource { get; set; } = new CancellationTokenSource();
+		private CancellationTokenSource _importCancellationSource { get; set; } 
 
 		/// <summary>
 		/// Starts automatically using our Importers to import stuff
 		/// </summary>
-		public async Task StartImportLoopAsync()
+		public void StartImportLoopAsync()
 		{
-			if (this.ImportLoop == null || this.ImportLoop.IsCanceled)
+			if (this._importCancellationSource == null || _importCancellationSource.IsCancellationRequested)
 			{
+				_importCancellationSource = new CancellationTokenSource();
 				var cancellationToken = _importCancellationSource.Token;
-				cancellationToken.ThrowIfCancellationRequested();
 
-				this.ImportLoop = Task.Run(async () =>
-				{
-					while (true)
+				Thread tImportLoop = new Thread(new ThreadStart(async () => {
+					while (!cancellationToken.IsCancellationRequested)
 					{
 						foreach (IChatImporter importer in this.Importers.Values)
-						{
+						{					
 							await Task.Delay(this.TimeForEachImporter);
 							await importer.ImportNextMessage();
 						}
 					}
-				}, cancellationToken);
-			}
+				}));
 
-			await this.ImportLoop.ConfigureAwait(false);
+				tImportLoop.Start();
+			}
 		}
 
 		/// <summary>
@@ -72,9 +69,8 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			if (this.ChannelHasImporter(channel)) 
 				return this.GetImporter(channel);
 
-			importer = importer ?? new ChatImporter(new ChatImporterSettings(channel, exportedChannel));
+			importer = importer ?? new ChatImporter(channel, exportedChannel);
 			this.Importers.Add(channel, importer);
-			this.SetImporterIntervals(this.Settings.ImportTime + (this.Settings.AddedTimeForEachImporter * this.Importers.Count));
 
 			importer.FinishImports += Importer_FinishImports;
 
