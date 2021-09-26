@@ -25,7 +25,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		/// <summary>
 		/// Starts automatically using our Importers to import stuff
 		/// </summary>
-		public void StartImportLoopAsync()
+		public void StartImportLoop()
 		{
 			if (this._importCancellationSource == null || _importCancellationSource.IsCancellationRequested)
 			{
@@ -37,8 +37,11 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 					{
 						foreach (IChatImporter importer in this.Importers.Values)
 						{					
-							await Task.Delay(this.TimeForEachImporter);
-							await importer.ImportNextMessage();
+							if (importer.IsEnabled)
+							{
+								await Task.Delay(this.TimeForEachImporter);
+								await importer.ImportNextMessage();
+							}
 						}
 					}
 				}));
@@ -64,12 +67,13 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		///	Adds another importer to the Importer Stack and will start using it.
 		/// </summary>
 		/// <returns>The IChatImporter, null if it couldn't be added.</returns>
-		public IChatImporter AddImporter(ISocketMessageChannel channel, ExportedChannel exportedChannel, IChatImporter importer = null)
+		public IChatImporter AddImporter(IChatImporter importer)
 		{
+			ISocketMessageChannel channel = importer.Settings.Destination;
+
 			if (this.ChannelHasImporter(channel)) 
 				return this.GetImporter(channel);
 
-			importer = importer ?? new ChatImporter(channel, exportedChannel);
 			this.Importers.Add(channel, importer);
 
 			importer.FinishImports += Importer_FinishImports;
@@ -125,12 +129,12 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		/// <summary>
 		/// When one of our Importers has completed
 		/// </summary>
-		private void Importer_FinishImports(object sender, ChatImporterEventArgs e)
+		private void Importer_FinishImports(object sender, IChatImporterSettings e)
 		{
 			if (sender is IChatImporter importer)
 			{
-				this.Importers.Remove(e.Channel);
-				this.ImportFinished(this, new ChatImportManagerEventArgs(e.Channel, importer));
+				this.Importers.Remove(e.Destination);
+				this.ImportFinished(this, new ChatImportManagerEventArgs(importer, e));
 			}
 		}
 	}

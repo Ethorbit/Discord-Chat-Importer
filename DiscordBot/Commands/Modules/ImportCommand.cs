@@ -50,7 +50,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 			{
 				IUserMessage reactMsg = await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Import Confirmation",
 								$@"Are you sure you want to do this? With {Context.Bot.ChatImportManager.Importers.Count} 
-								concurrent imports and {importer.Source.Messages.Count} messages, this will take an estimated {importer.ImportTimer.Interval} seconds to complete.
+								concurrent imports and {importer.Settings.Source.Messages.Count} messages, this will take an estimated {this.Context.Bot.ChatImportManager.GetEstimatedImportTime()} to complete.
 																		
 								You may want to go back and hide the channel first so that users aren't spammed.",
 								Color.Orange));
@@ -73,7 +73,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 							{
 								if (arg3.Emote.Name == CheckEmoji.Name)
 								{
-									Console.WriteLine("TIME TO IMPORT!");
+									this.Context.Bot.ChatImportManager.AddImporter(channel, importer.Settings.Source);
 								}
 								else if (arg3.Emote.Name == XEmoji.Name)
 								{
@@ -97,10 +97,10 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 
 			try
 			{
-				BotReturn res = await this.Context.Bot.GetChatImporterFromUriAsync(uri, channel, importCallback);
+				BotReturn res = await this.Context.Bot.ImportMessagesFromURIAsync(uri, channel, importCallback);
 
-				if (res == BotReturn.MaxImportsReached)
-					await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Too many imports!", "I'm too busy handling the other imports right now, try again later.", Color.Red));
+				//if (res == BotReturn.MaxImportsReached)
+				//	await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Too many imports!", "I'm too busy handling the other imports right now, try again later.", Color.Red));
 
 				if (res == BotReturn.ImporterExists)
 					await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel, please wait until I finish..", Color.Red));

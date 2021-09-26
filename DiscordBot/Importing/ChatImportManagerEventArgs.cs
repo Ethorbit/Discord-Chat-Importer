@@ -1,19 +1,14 @@
-﻿using Discord.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Discord_Channel_Importer.DiscordBot.Importing
+﻿namespace Discord_Channel_Importer.DiscordBot.Importing
 {
 	internal class ChatImportManagerEventArgs
 	{
 		public IChatImporter Importer { get; }
-		public ISocketMessageChannel Channel { get; }
+		public IChatImporterSettings ImporterSettings { get; }
 
-		public ChatImportManagerEventArgs(ISocketMessageChannel channel, IChatImporter importer)
+		public ChatImportManagerEventArgs(IChatImporter importer, IChatImporterSettings importerSettings)
 		{
 			this.Importer = importer;
-			this.Channel = channel;
+			this.ImporterSettings = importerSettings;
 		}
 	}
 }

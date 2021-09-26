@@ -14,27 +14,26 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	/// </summary>
 	internal class ChatImporter : IChatImporter
 	{
-		public event EventHandler<ChatImporterEventArgs> FinishImports;
-		public ISocketMessageChannel Destination { get; }
-		public ExportedChannel Source { get; }
+		public event EventHandler<IChatImporterSettings> FinishImports;
+		public IChatImporterSettings Settings { get; }
+		public bool IsEnabled { get; set; } = false;
 		public bool IsFinished { get; private set; }
 
-		public ChatImporter(ISocketMessageChannel importChannel, ExportedChannel exportChannel)
+		public ChatImporter(IChatImporterSettings settings)
 		{
-			this.Destination = importChannel;
-			this.Source = exportChannel;
+			this.Settings = settings;
 		}
 		
 		public async Task ImportNextMessage()
 		{
-			var expChan = this.Source;
+			var expChan = this.Settings.Source;
 
 			if (this.IsFinished || expChan.Messages.Count <= 0)
 			{
 				this.IsFinished = true;
 
 				if (this.FinishImports != null)
-					this.FinishImports(this, new ChatImporterEventArgs(this.Destination));
+					this.FinishImports(this, this.Settings);
 
 				return;
 			}
@@ -42,7 +41,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			Message msg = expChan.Messages.Peek();
 
 			Discord.Embed embed = DiscordFactory.CreateEmbed(msg.Author.Name, msg.Content, Color.Gold);
-			await this.Destination.SendMessageAsync(null, false, embed);
+			await this.Settings.Destination.SendMessageAsync(null, false, embed);
 
 			expChan.Messages.Pop();
 		}

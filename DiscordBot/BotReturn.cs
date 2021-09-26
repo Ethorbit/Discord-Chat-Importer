@@ -9,7 +9,6 @@
 		Error,
 		ParseError,
 		ImporterExists,
-		ImporterDoesntExist,
-		MaxImportsReached
+		ImporterDoesntExist
 	}
 }

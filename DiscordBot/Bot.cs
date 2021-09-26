@@ -5,6 +5,7 @@ using Discord_Channel_Importer.Utilities;
 using Discord_Channel_Importer.DiscordBot.Export;
 using Discord_Channel_Importer.DiscordBot.Settings;
 using Discord.WebSocket;
+using Discord;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
@@ -21,10 +22,12 @@ namespace Discord_Channel_Importer.DiscordBot
 		{
 			this.Settings = settings;
 			this.ChatImportManager = importManager;
+			this.ChatImportManager.StartImportLoop();
+			this.ChatImportManager.ImportFinished += ChatImportManager_ImportFinished;
 		}
 
 		public async Task StartAsync()
-		{
+		{	
 			// Connect
 			await this.Settings.Client.LoginAsync(Discord.TokenType.Bot, this.Settings.Token);
 			await this.Settings.Client.StartAsync();
@@ -35,24 +38,23 @@ namespace Discord_Channel_Importer.DiscordBot
 
 		/// <inheritdoc cref="IBot.ImportMessagesFromURIToChannelAsync"/>
 		/// <returns>
-		/// BotReturn.ImporterExists, BotReturn.MaxImportsReached, BotReturn.ParseError, BotReturn.Success
+		/// BotReturn.ImporterExists, BotReturn.ParseError, BotReturn.Success
 		/// </returns>
 		/// <param name="importReady">Callback function to retrieve the created ChatImporter</param>
-		public async Task<BotReturn> GetChatImporterFromUriAsync(Uri uri, ISocketMessageChannel channel, Action<IChatImporter> callback)
+		public async Task<BotReturn> ImportMessagesFromURIAsync(Uri uri, IUser caller, ISocketMessageChannel channel, Action<IChatImporter> callback = null)
 		{
 			if (this.ChatImportManager.ChannelHasImporter(channel))
 				return BotReturn.ImporterExists;
-
-			if (this.ChatImportManager.HasMaxImporters)
-				return BotReturn.MaxImportsReached;
 
 			try
 			{
 				object exportedObj = await Web.GetJsonFromURIAsync(uri, typeof(ExportedChannel));
 				var exportedChannel = (ExportedChannel)exportedObj;
 
-				IChatImporter importer = this.ChatImportManager.AddImporter(channel, exportedChannel);
-				callback(importer);
+				var importer = new ChatImporter(new ChatImporterSettings(caller, channel, exportedChannel));
+
+				if (callback != null)
+					callback(importer);
 
 				return BotReturn.Success;
 			}
@@ -88,6 +90,14 @@ namespace Discord_Channel_Importer.DiscordBot
 			await this.CancelImportingToChannelAsync(channel);
 
 			return BotReturn.Success;
+		}
+
+		/// <summary>
+		/// When we finish importing to a channel
+		/// </summary>
+		private void ChatImportManager_ImportFinished(object sender, ChatImportManagerEventArgs e)
+		{
+	
 		}
 	}
 }

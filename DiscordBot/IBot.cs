@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using Discord_Channel_Importer.DiscordBot.Importing;
 using Discord_Channel_Importer.DiscordBot.Settings;
@@ -25,7 +26,7 @@ namespace Discord_Channel_Importer.DiscordBot
 		/// Parses a Discord channel's json and generates embeds based off it, 
 		/// which it creates and returns as a ChatImporter object.
 		/// </summary>
-		Task<BotReturn> GetChatImporterFromUriAsync(Uri uri, ISocketMessageChannel channel, Action<IChatImporter> callback);
+		Task<BotReturn> ImportMessagesFromURIAsync(Uri uri, IUser caller, ISocketMessageChannel channel, Action<IChatImporter> callback = null);
 
 		/// <summary>
 		/// Uses the provided ChatImporter on the channel

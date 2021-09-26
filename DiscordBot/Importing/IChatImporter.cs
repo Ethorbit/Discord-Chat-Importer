@@ -11,11 +11,10 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	/// </summary>
 	internal interface IChatImporter
 	{
-		public event EventHandler<ChatImporterEventArgs> FinishImports;
-		public ISocketMessageChannel Destination { get; }
-		public ExportedChannel Source { get; }
+		public event EventHandler<IChatImporterSettings> FinishImports;
+		public IChatImporterSettings Settings { get; }
+		bool IsEnabled { get; set; }
 		bool IsFinished { get; }
-
 
 		Task ImportNextMessage();
 	}	
