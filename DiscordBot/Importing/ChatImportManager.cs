@@ -37,7 +37,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 					{
 						foreach (IChatImporter importer in this.Importers.Values)
 						{					
-							if (importer.IsEnabled)
+							if (importer.Settings.IsEnabled)
 							{
 								await Task.Delay(this.TimeForEachImporter);
 								await importer.ImportNextMessage();
@@ -107,7 +107,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		public TimeSpan GetEstimatedImportTime(ISocketMessageChannel channel)
 		{
 			var importer = this.GetImporter(channel);
-			return TimeSpan.FromSeconds((this.TimeForEachImporter * this.Importers.Count) * importer.Source.Messages.Count);
+			return TimeSpan.FromSeconds((this.TimeForEachImporter * this.Importers.Count) * importer.Settings.Source.Messages.Count);
 		}
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 
 			foreach (IChatImporter importer in this.Importers.Values)
 			{
-				total_messages += importer.Source.Messages.Count;
+				total_messages += importer.Settings.Source.Messages.Count;
 			}
 
 			return TimeSpan.FromSeconds((this.TimeForEachImporter * this.Importers.Count) * total_messages);

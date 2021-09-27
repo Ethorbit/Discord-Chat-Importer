@@ -13,7 +13,6 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	{
 		public event EventHandler<IChatImporterSettings> FinishImports;
 		public IChatImporterSettings Settings { get; }
-		bool IsEnabled { get; set; }
 		bool IsFinished { get; }
 
 		Task ImportNextMessage();

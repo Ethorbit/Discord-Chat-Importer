@@ -16,10 +16,9 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	{
 		public event EventHandler<IChatImporterSettings> FinishImports;
 		public IChatImporterSettings Settings { get; }
-		public bool IsEnabled { get; set; } = false;
 		public bool IsFinished { get; private set; }
 
-		public ChatImporter(IChatImporterSettings settings)
+		public ChatImporter(IChatImporterSettings settings, bool isEnabled = true)
 		{
 			this.Settings = settings;
 		}

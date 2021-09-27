@@ -22,7 +22,7 @@ namespace Discord_Channel_Importer
 				// Create Discord bot
 				string token = (string)args.GetValue(0);
 
-				var discordBot = await DiscordBot.Factories.BotFactory.CreateBot(token);
+				var discordBot = await DiscordBot.Bot.CreateBot(token);
 				discordBot.Logged_In += async (object sender, EventArgs e) => await Task.Run(() => Console.WriteLine("Logged in."));	
 				await Task.Run(() => Console.WriteLine("Logging in..."));
 

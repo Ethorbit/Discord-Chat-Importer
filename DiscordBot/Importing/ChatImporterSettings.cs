@@ -9,12 +9,14 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		public IUser Requester { get; }
 		public ISocketMessageChannel Destination { get; }
 		public ExportedChannel Source { get; }
+		public bool IsEnabled { get; set; }
 
-		public ChatImporterSettings(IUser requester, ISocketMessageChannel destination, ExportedChannel source)
+		public ChatImporterSettings(IUser requester, ISocketMessageChannel destination, ExportedChannel source, bool isEnabled = true)
 		{
 			this.Requester = requester;
 			this.Destination = destination;
 			this.Source = source;
+			this.IsEnabled = isEnabled;
 		}
 	}
 }

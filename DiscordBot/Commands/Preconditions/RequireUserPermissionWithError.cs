@@ -11,7 +11,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands
 	{
 		public RequireUserPermissionWithError(Discord.GuildPermission perm) : base(perm) { }
 
-		public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
+		public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, Discord.Commands.CommandInfo command, IServiceProvider services)
 		{
 			PreconditionResult res = await base.CheckPermissionsAsync(context, command, services);
 
