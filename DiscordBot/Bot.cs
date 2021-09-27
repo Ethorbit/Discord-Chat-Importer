@@ -5,6 +5,9 @@ using Discord_Channel_Importer.DiscordBot.Settings;
 using Discord.WebSocket;
 using Discord.Commands;
 using Discord_Channel_Importer.DiscordBot.Commands;
+using Discord;
+using System.Collections.Generic;
+using Discord_Channel_Importer.DiscordBot.Factories;
 
 namespace Discord_Channel_Importer.DiscordBot
 {
@@ -54,6 +57,38 @@ namespace Discord_Channel_Importer.DiscordBot
 
 			if (this.Logged_In != null)
 				this.Logged_In(this, null);
+		}
+
+		public async Task WaitForMessageReactionsAsync(SocketGuild guild, IUserMessage targetMessage, List<string> emotesAllowed, GuildPermission permissionsRequired, bool botShouldReact, Action<SocketReaction> callback)
+		{
+			if (botShouldReact)
+			{
+				await Task.Run(async () =>
+				{
+					foreach (string emoteName in emotesAllowed)
+					{
+						var emote = DiscordFactory.CreateEmoji(emoteName);
+						await targetMessage.AddReactionAsync(emote);
+					}
+				});
+			}
+
+			this.Settings.Client.ReactionAdded += async (Cacheable<IUserMessage, ulong> reactMsg, ISocketMessageChannel reactChannel, SocketReaction reaction) =>
+			{
+				if (reactMsg.Id == targetMessage.Id && targetMessage.Channel == reactChannel)
+				{
+					bool isCorrectEmote = await Task.Run(() => { return emotesAllowed.Contains(reaction.Emote.Name); });
+
+					if (isCorrectEmote)
+					{
+						var user = (IGuildUser)guild.GetUser(reaction.UserId);
+						if (user.IsBot) return; 
+
+						if (user.GuildPermissions.Has(permissionsRequired))
+							callback(reaction);		
+					}
+				}
+			};
 		}
 	}
 }

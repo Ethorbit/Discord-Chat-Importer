@@ -9,15 +9,18 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 	/// </summary>
 	public abstract class CommandModule : ModuleBase<BotSocketCommandContext>
 	{
-		public abstract string Usage { get; }
-		public abstract string Description { get; }
+		public abstract CommandInfo[] CommandInfo { get; }
+		//public abstract string Usage { get; }
+		//public abstract string Description { get; }
 
 		protected const GuildPermission DefaultPermission = (GuildPermission.ManageMessages | GuildPermission.ManageChannels);
 
 		public CommandModule()
 		{
-			if (this.Description != null)
-				Commands.Add(new CommandInfo() { Command = this, Usage = this.Usage, Description = this.Description });
+			if (this.CommandInfo != null)
+				Commands.Add(this.CommandInfo);
+
+				//Commands.Add(new CommandInfo() { Command = this, Usage = this.Usage, Description = this.Description });
 		}
 	}
 }

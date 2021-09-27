@@ -38,8 +38,8 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 						foreach (IChatImporter importer in this.Importers.Values)
 						{					
 							if (importer.Settings.IsEnabled)
-							{
-								await Task.Delay(this.TimeForEachImporter);
+							{ 
+								await Task.Delay(this.TimeForEachImporter, cancellationToken);
 								await importer.ImportNextMessage();
 							}
 						}
@@ -91,6 +91,13 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		{
 			return this.Importers.Remove(channel);
 		}
+		/// <summary>
+		/// Removes all assigned Importers.
+		/// </summary>
+		public void ClearImporters()
+		{
+			this.Importers.Clear();
+		}
 
 		/// <summary>
 		/// Gets the Importer that's assigned to the specified channel
@@ -98,7 +105,10 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		/// <returns>null if the channel had no Importer.</returns>
 		public IChatImporter GetImporter(ISocketMessageChannel channel)
 		{
-			return this.Importers[channel];
+			IChatImporter importer;
+			this.Importers.TryGetValue(channel, out importer);
+
+			return importer;
 		}
 
 		/// <summary>
@@ -107,6 +117,10 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		public TimeSpan GetEstimatedImportTime(ISocketMessageChannel channel)
 		{
 			var importer = this.GetImporter(channel);
+			
+			if (importer == null) 
+				return TimeSpan.Zero;
+
 			return TimeSpan.FromSeconds((this.TimeForEachImporter * this.Importers.Count) * importer.Settings.Source.Messages.Count);
 		}
 
@@ -120,7 +134,8 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 
 			foreach (IChatImporter importer in this.Importers.Values)
 			{
-				total_messages += importer.Settings.Source.Messages.Count;
+				if (importer.Settings.IsEnabled)
+					total_messages += importer.Settings.Source.Messages.Count;
 			}
 
 			return TimeSpan.FromSeconds((this.TimeForEachImporter * this.Importers.Count) * total_messages);

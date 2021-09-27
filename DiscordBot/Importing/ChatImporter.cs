@@ -2,10 +2,7 @@
 using Discord_Channel_Importer.DiscordBot.Factories;
 using Discord_Channel_Importer.DiscordBot.Export.Structures;
 using System;
-using System.Timers;
 using System.Threading.Tasks;
-using Discord.WebSocket;
-using Discord_Channel_Importer.DiscordBot.Export;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
@@ -18,7 +15,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		public IChatImporterSettings Settings { get; }
 		public bool IsFinished { get; private set; }
 
-		public ChatImporter(IChatImporterSettings settings, bool isEnabled = true)
+		public ChatImporter(IChatImporterSettings settings)
 		{
 			this.Settings = settings;
 		}

@@ -8,8 +8,14 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 {
 	public class RemoveImportsCommand : CommandModule
 	{
-		public override string Usage { get; } = "undo #channel-name";
-		public override string Description { get; } = "Removes ALL archived messages I made in the specified channel and automatically cancels importing to that channel.";
+		public override CommandInfo[] CommandInfo { get; } = new CommandInfo[]
+		{
+			new CommandInfo()
+			{
+				Usage = "undo #channel-name",
+				Description = "Removes ALL archived messages I made in the specified channel and automatically cancels importing to that channel."
+			}
+		};
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
 		[Command("importer undo", RunMode = RunMode.Async)]

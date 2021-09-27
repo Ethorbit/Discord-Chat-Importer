@@ -6,15 +6,21 @@ using Discord_Channel_Importer.DiscordBot.Factories;
 using Discord_Channel_Importer.DiscordBot.Importing;
 using Discord_Channel_Importer.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 {
 	public class ImportCommand : CommandModule
 	{
-		public override string Usage { get; } = "import <url> #channel-name";
-		public override string Description { get; } = "Gets all Discord messages from the provided URL (which should be a .json with the proper Discord channel structure) and recreates them in the provided channel.";
-
+		public override CommandInfo[] CommandInfo { get; } = new CommandInfo[]
+		{ 
+			new CommandInfo() 
+			{  
+				Usage = "import <url> #channel-name",
+				Description = "Gets all Discord messages from the provided URL (which should be a .json with the proper Discord channel structure) and recreates them in the provided channel."
+			}
+		};
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
 		[Command("importer import", RunMode = RunMode.Async)]
@@ -63,6 +69,8 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 				{
 					Console.WriteLine(e.Message);
 
+					await WaitMsg.DeleteAsync();
+
 					await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Error parsing the URL!", "There was an error parsing the text on the provided webpage. Reasons why this might happen:", Color.Red,
 						new EmbedField[] {
 						DiscordFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
@@ -76,47 +84,30 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 
 		private async Task ConfirmImportAsync(ChatImporter importer)
 		{
+			importer.Settings.IsEnabled = false;
+			this.Context.Bot.ChatImportManager.AddImporter(importer);
+
 			IUserMessage reactMsg = await ReplyAsync(null, false, DiscordFactory.CreateEmbed
 			(
 				"Import Confirmation",
-				$@"Are you sure you want to do this? With {Context.Bot.ChatImportManager.Importers.Count} 
-					concurrent imports and {importer.Settings.Source.Messages.Count} messages, 
-					this will take an estimated {this.Context.Bot.ChatImportManager.GetEstimatedImportTime()} to complete.													
-					You may want to go back and hide the channel first so that users aren't spammed.",
+				$@"Are you sure you want to do this? With {Context.Bot.ChatImportManager.Importers.Count} concurrent imports and {importer.Settings.Source.Messages.Count} messages, 
+				this will take an estimated {this.Context.Bot.ChatImportManager.GetEstimatedImportTime(importer.Settings.Destination)} to complete. You may want to go back and hide the channel first so that users aren't spammed.",
 				Color.Orange)
 			);
 
-			var checkEmoji = DiscordFactory.CreateEmoji("✅");
-			var xEmoji = DiscordFactory.CreateEmoji("❌");
-
-			await reactMsg.AddReactionsAsync(new IEmote[] { checkEmoji, xEmoji });
-
-			// Wait for someone to react
-			this.Context.Client.ReactionAdded += async (Cacheable<IUserMessage, ulong> reactedMsg, ISocketMessageChannel arg2, SocketReaction arg3) =>
+			await this.Context.Bot.WaitForMessageReactionsAsync(this.Context.Guild, reactMsg, new List<string>() { "✅", "❌" }, DefaultPermission, true, async (SocketReaction reaction) =>
 			{
-				// Make sure it's the confirmation message they are reacting to
-				if (reactedMsg.Id == reactMsg.Id)
+				if (reaction.Emote.Name == "✅") // Proceed with import
 				{
-					if (!arg3.User.IsSpecified)
-						return;
-
-					var user = arg3.User.Value;
-					user = this.Context.Guild.GetUser(user.Id);
-
-					// Only allow admins to decide
-					if (user is IGuildUser userGuild && userGuild.GuildPermissions.Has(DefaultPermission))
-					{
-						if (arg3.Emote.Name == checkEmoji.Name) // Proceed with import
-						{
-							this.Context.Bot.ChatImportManager.AddImporter(importer);
-						}
-						else if (arg3.Emote.Name == xEmoji.Name) // Cancel
-						{
-							await reactMsg.DeleteAsync();
-						}
-					}
+					importer.Settings.IsEnabled = true;
+					await reactMsg.DeleteAsync();	
 				}
-			};
+				else if (reaction.Emote.Name == "❌") // Cancel
+				{
+					this.Context.Bot.ChatImportManager.RemoveImporter(importer.Settings.Destination);
+					await reactMsg.DeleteAsync();
+				}
+			});
 
 			importer.FinishImports += Importer_FinishImports;
 		}
