@@ -39,7 +39,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			Discord.Embed embed = DiscordFactory.CreateEmbed(msg.Author.Name, msg.Content, Color.Gold);
 			await this.Settings.Destination.SendMessageAsync(null, false, embed);
 
-			expChan.Messages.Pop();
+			expChan.Messages.Dequeue();
 		}
 	}
 }

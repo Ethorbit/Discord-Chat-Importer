@@ -11,6 +11,6 @@ namespace Discord_Channel_Importer.DiscordBot.Export
 	{
 		public Guild Guild { get; set; }
 		public Channel Channel { get; set; }
-		public Stack<Message> Messages { get; set; } 
+		public Queue<Message> Messages { get; set; } 
 	}
 }

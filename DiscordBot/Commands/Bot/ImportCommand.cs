@@ -85,13 +85,28 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 		private async Task ConfirmImportAsync(ChatImporter importer)
 		{
 			importer.Settings.IsEnabled = false;
-			this.Context.Bot.ChatImportManager.AddImporter(importer);
 
+			ChatImportManager chatImportManager = this.Context.Bot.ChatImportManager;
+			chatImportManager.AddImporter(importer);
+
+			// Format the estimated Importer finish time:
+			TimeSpan estimatedTime = chatImportManager.GetEstimatedImportTime(importer.Settings.Destination);
+			var hourCount = (int)estimatedTime.TotalHours;
+			var minCount = (int)estimatedTime.TotalMinutes;
+			var secCount = (int)estimatedTime.TotalSeconds;
+			string estimatedHours = hourCount == 0 ? "" : string.Format("{0:%h} hour{1}, ", estimatedTime, hourCount != 1 ? "s" : "");
+			string estimatedMins = minCount == 0 ? "" : string.Format("{0:%m} minute{1}, ", estimatedTime, minCount != 1 ? "s" : "");
+			string estimatedSecs = secCount == 0 ? "" : string.Format("{0:%s} second{1}", estimatedTime, secCount != 1 ? "s" : "");
+			string sEstimatedTime = string.Format("{0}{1}{2}", estimatedHours, estimatedMins, estimatedSecs);
+
+			// Confirmation message
 			IUserMessage reactMsg = await ReplyAsync(null, false, DiscordFactory.CreateEmbed
 			(
 				"Import Confirmation",
-				$@"Are you sure you want to do this? With {Context.Bot.ChatImportManager.Importers.Count} concurrent imports and {importer.Settings.Source.Messages.Count} messages, 
-				this will take an estimated {this.Context.Bot.ChatImportManager.GetEstimatedImportTime(importer.Settings.Destination)} to complete. You may want to go back and hide the channel first so that users aren't spammed.",
+				$@"Are you sure you want to do this? With {chatImportManager.Importers.Count} concurrent imports and {importer.Settings.Source.Messages.Count} messages, 
+				this will take an estimated **{sEstimatedTime}** to complete. 
+				
+				You may want to go back and hide the channel first so that users aren't spammed.",
 				Color.Orange)
 			);
 
@@ -104,7 +119,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 				}
 				else if (reaction.Emote.Name == "❌") // Cancel
 				{
-					this.Context.Bot.ChatImportManager.RemoveImporter(importer.Settings.Destination);
+					chatImportManager.RemoveImporter(importer.Settings.Destination);
 					await reactMsg.DeleteAsync();
 				}
 			});
