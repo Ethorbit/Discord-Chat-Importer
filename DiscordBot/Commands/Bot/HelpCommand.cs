@@ -24,7 +24,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 				}
 			}
 
-			await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Importer Commands", null, Color.LightGrey, embedFields.ToArray()));
+			await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Chat Importer Commands", null, Color.LightGrey, embedFields.ToArray()));
 		}
 	}
 }

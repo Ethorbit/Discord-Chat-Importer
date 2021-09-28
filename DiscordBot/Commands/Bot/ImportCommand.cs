@@ -4,6 +4,7 @@ using Discord.WebSocket;
 using Discord_Channel_Importer.DiscordBot.Export;
 using Discord_Channel_Importer.DiscordBot.Factories;
 using Discord_Channel_Importer.DiscordBot.Importing;
+using Discord_Channel_Importer.Extensions;
 using Discord_Channel_Importer.Utilities;
 using System;
 using System.Collections.Generic;
@@ -23,19 +24,17 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 		};
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
-		[Command("importer import", RunMode = RunMode.Async)]
+		[Command("importer import", true, RunMode = RunMode.Async)]
 		public async Task ImportMessages(string url, string channel = "")
 		{
-			if (channel.Length <= 0)
-				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Channel required!", "You want to import messages into a channel, but what channel? You forgot to tag the channel.. (#my-channel)", Color.Red));
-			else
-				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Invalid channel!", "What is that? You need to tag the channel (#my-channel)", Color.Red));
+			await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
 		}
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
-		[Command("importer import", RunMode = RunMode.Async)]
+		[Command("importer import", true, RunMode = RunMode.Async)]
 		public async Task ImportMessages(string url = "", ISocketMessageChannel channel = null)
 		{
+			#region Attempt
 			if (url.Length <= 0)
 			{
 				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("URL required!", "How am I supposed to know what you want? Provide a URL to the json containing the channel with messages.", Color.Red));
@@ -52,33 +51,35 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 			}
 
 			if (this.Context.Bot.ChatImportManager.ChannelHasImporter(channel))
-				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel, please wait until I finish..", Color.Red));
-			else
 			{
-				IUserMessage WaitMsg = await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
+				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Duplicate import!", "I am already importing to that channel, please wait until I finish..", Color.Red));
+				return;
+			}		
+			#endregion
 
-				try
-				{
-					object exportedObj = await Json.GetJsonObjectFromURIAsync(uri, typeof(ExportedChannel));
-					await WaitMsg.DeleteAsync();
+			IUserMessage WaitMsg = await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Please wait...", "I am downloading the text from that URL, this could take some time.", Color.LightGrey));
 
-					var exportedChannel = (ExportedChannel)exportedObj;
-					await this.ConfirmImportAsync(new ChatImporter(new ChatImporterSettings(this.Context.User, channel, exportedChannel)));
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine(e.Message);
+			try
+			{
+				object exportedObj = await Json.GetJsonObjectFromURIAsync(uri, typeof(ExportedChannel));
+				await WaitMsg.DeleteAsync();
 
-					await WaitMsg.DeleteAsync();
+				var exportedChannel = (ExportedChannel)exportedObj;
+				await this.ConfirmImportAsync(new ChatImporter(new ChatImporterSettings(this.Context.User, channel, exportedChannel)));
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e.Message);
 
-					await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Error parsing the URL!", "There was an error parsing the text on the provided webpage. Reasons why this might happen:", Color.Red,
-						new EmbedField[] {
-						DiscordFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
-						DiscordFactory.CreateEmbedField("Incompatible .json", "The .json's structure does not match the requirements, you must export the channel's .json with DiscordChatExporter because I do not support anything else.", true),
-						DiscordFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
-						}
-					));
-				}
+				await WaitMsg.DeleteAsync();
+
+				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Error parsing the URL!", "There was an error parsing the text on the provided webpage. Reasons why this might happen:", Color.Red,
+					new EmbedField[] {
+					DiscordFactory.CreateEmbedField("It's not raw text", "Use Inspect Element on the page, if there's any scripting on it at all: it is not Raw Text.", true),
+					DiscordFactory.CreateEmbedField("Incompatible .json", "The .json's structure does not match the requirements, you must export the channel's .json with DiscordChatExporter because I do not support anything else.", true),
+					DiscordFactory.CreateEmbedField("Connection error", "There may have been a connection issue out of your control, try again later..", true)
+					}
+				));
 			}
 		}
 
@@ -89,22 +90,14 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 			ChatImportManager chatImportManager = this.Context.Bot.ChatImportManager;
 			chatImportManager.AddImporter(importer);
 
-			// Format the estimated Importer finish time:
 			TimeSpan estimatedTime = chatImportManager.GetEstimatedImportTime(importer.Settings.Destination);
-			var hourCount = (int)estimatedTime.TotalHours;
-			var minCount = (int)estimatedTime.TotalMinutes;
-			var secCount = (int)estimatedTime.TotalSeconds;
-			string estimatedHours = hourCount == 0 ? "" : string.Format("{0:%h} hour{1}, ", estimatedTime, hourCount != 1 ? "s" : "");
-			string estimatedMins = minCount == 0 ? "" : string.Format("{0:%m} minute{1}, ", estimatedTime, minCount != 1 ? "s" : "");
-			string estimatedSecs = secCount == 0 ? "" : string.Format("{0:%s} second{1}", estimatedTime, secCount != 1 ? "s" : "");
-			string sEstimatedTime = string.Format("{0}{1}{2}", estimatedHours, estimatedMins, estimatedSecs);
 
 			// Confirmation message
 			IUserMessage reactMsg = await ReplyAsync(null, false, DiscordFactory.CreateEmbed
 			(
 				"Import Confirmation",
 				$@"Are you sure you want to do this? With {chatImportManager.Importers.Count} concurrent imports and {importer.Settings.Source.Messages.Count} messages, 
-				this will take an estimated **{sEstimatedTime}** to complete. 
+				this will take an estimated **{estimatedTime.ToReadableFormat()}** to complete. 
 				
 				You may want to go back and hide the channel first so that users aren't spammed.",
 				Color.Orange)
@@ -129,7 +122,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 
 		private async void Importer_FinishImports(object sender, IChatImporterSettings e)
 		{
-			await e.Destination.SendMessageAsync(e.Requester.Mention + " importing for this channel has finished.");
+			await e.Destination.SendMessageAsync(e.Requester.Mention + " importing for this channel has finished. :thumbsup:");
 		}
 	}
 }

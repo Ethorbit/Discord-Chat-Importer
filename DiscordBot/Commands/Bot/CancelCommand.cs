@@ -21,32 +21,34 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 		};
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
-		[Command("importer cancel", RunMode = RunMode.Async)]
-		public async Task CancelMessageImport(ISocketMessageChannel channel)
+		[Command("importer cancel", true, RunMode = RunMode.Async)]
+		public async Task CancelMessageImport(ISocketMessageChannel channel = null)
 		{
+			#region Attempt
 			if (channel == null)
 			{
-				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Invalid Channel!", "What channel do you want to make me cancel importing to?", Color.Red));
+				await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
 				return;
 			}
 
 			if (!this.Context.Bot.ChatImportManager.ChannelHasImporter(channel))
 			{
-				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Not importing!", "I am not importing messages to that channel.", Color.Red));
+				await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.NoImportForChannel));
 				return;
 			}
+			#endregion
 
 			this.Context.Bot.ChatImportManager.RemoveImporter(channel);
 			await ReplyAsync(this.Context.User.Mention + $" Stopped importing to {channel.Name}.");
 		}
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
-		[Command("importer cancel all", RunMode = RunMode.Async)]
+		[Command("importer cancel all", true, RunMode = RunMode.Async)]
 		public async Task CancelAllMessageImports()
 		{
 			if (!this.Context.Bot.ChatImportManager.ChannelHasImporter(this.Context.Channel))
 			{
-				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Not importing!", "I am not importing messages to that channel.", Color.Red));
+				await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.NoImportForChannel));
 				return;
 			}
 
@@ -67,7 +69,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 
 					this.Context.Bot.ChatImportManager.ClearImporters();
 
-					await ReplyAsync(reaction.User.Value.Mention + " Cleared all Importers.");
+					await ReplyAsync(reaction.User.Value.Mention + " Cancelled all imports. :thumbsup:");
 				}
 				else if (reaction.Emote.Name == "❌") // Cancel
 				{

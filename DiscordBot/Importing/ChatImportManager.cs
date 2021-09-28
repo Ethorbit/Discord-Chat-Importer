@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Discord_Channel_Importer.DiscordBot.Export;
 
 namespace Discord_Channel_Importer.DiscordBot.Importing
 {
 	/// <summary>
-	/// Manages IChatImporters, with a custom max allowed limit and import delays
+	/// Stores and controls IChatImporters
 	/// </summary>
 	internal class ChatImportManager
 	{
@@ -21,6 +19,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 		/// </summary>
 		public double ImportLoopIterationTime { get; set; } = 500;
 		public ConcurrentDictionary<IChannel, IChatImporter> Importers { get; } = new ConcurrentDictionary<IChannel, IChatImporter>();
+		public bool IsImportLoopRunning { get { return !_importCancellationSource.IsCancellationRequested; } }
 		private CancellationTokenSource _importCancellationSource { get; set; }
 	
 		/// <summary>
