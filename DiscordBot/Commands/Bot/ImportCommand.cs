@@ -99,7 +99,8 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 				$@"Are you sure you want to do this? With {chatImportManager.Importers.Count} concurrent imports and {importer.Settings.Source.Messages.Count} messages, 
 				this will take an estimated **{estimatedTime.ToReadableFormat()}** to complete. 
 				
-				You may want to go back and hide the channel first so that users aren't spammed.",
+				You may want to go back and hide the channel first so that users aren't spammed.
+				I will ping you when the job is done.",
 				Color.Orange)
 			);
 
@@ -122,7 +123,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 
 		private async void Importer_FinishImports(object sender, IChatImporterSettings e)
 		{
-			await e.Destination.SendMessageAsync(e.Requester.Mention + " importing for this channel has finished. :thumbsup:");
+			await e.Destination.SendMessageAsync(e.Requester.Mention + " Importing for this channel has finished. :thumbsup:");
 		}
 	}
 }

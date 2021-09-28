@@ -12,7 +12,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 	/// </summary>
 	internal class ChatImportManager
 	{
-		public event EventHandler<ChatImportManagerEventArgs> ImportFinished;
+		public event EventHandler<ChatImportManagerEventArgs> ImportFinished = delegate { };
 
 		/// <summary>
 		/// The time (in milliseconds) it takes for our ImportLoop to iterate each stored Importer
@@ -121,6 +121,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			if (importer == null) 
 				return TimeSpan.Zero;
 
+			// TODO: improve this, we don't know how long the importer count will remain, so the estimation can jump from 3 hours to 1.
 			return TimeSpan.FromSeconds(((this.ImportLoopIterationTime / 1000) * this.Importers.Count) * importer.Settings.Source.Messages.Count);
 		}
 
@@ -138,6 +139,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 					total_messages += importer.Settings.Source.Messages.Count;
 			}
 
+			// TODO: improve this, we don't know how long the importer count will remain, so the estimation can jump from 3 hours to 1.
 			return TimeSpan.FromSeconds(((this.ImportLoopIterationTime / 1000) * this.Importers.Count) * total_messages);
 		}
 		
