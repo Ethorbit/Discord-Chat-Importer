@@ -14,6 +14,9 @@ Discord-Chat-Importer allows you to import Discord channels (exported with Disco
 * On the left panel, click `OAuth2`
 * Under Scopes, check `Bot`
 * Under Bot Permissions, check `View Channels, Send Messages, Manage Messages, Embed Links, Attach Files, Read Message History`
+* Copy the URL generated under Scopes and paste it into your browser
+* Select the server you want the bot in
+* Go back to the applicaiton page
 * On the left panel, click `Bot`
 * Click `Add Bot`
 * Copy the Token, you'll need this for the next step.
@@ -34,6 +37,6 @@ Discord-Chat-Importer allows you to import Discord channels (exported with Disco
 <br></br> ![Import Preview](https://i.imgur.com/SZ1bOq9.png)
 
 ## Commands
-You need the Manage Messages and Manage Channels permissions
+You need the Manage Messages and Manage Channels permissions.
 <br></br>Type `!importer help` for the command list.
-* ![Command Preview]()
+* ![Command Preview](https://i.imgur.com/I684Agh.png)
