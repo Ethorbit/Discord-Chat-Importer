@@ -24,12 +24,21 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Bot
 
 		[Command("importer timeleft", true, RunMode = RunMode.Async)]
 		[Alias("importer time")]
+		public async Task ShowTimeleft(string channel = null)
+		{
+			await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
+			await SendUsageAsync();
+		}
+
+		[Command("importer timeleft", true, RunMode = RunMode.Async)]
+		[Alias("importer time")]
 		public async Task ShowTimeleft(ISocketMessageChannel channel = null)
 		{
 			#region Attempt
 			if (channel == null)
 			{
 				await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
+				await SendUsageAsync();
 				return;
 			}
 

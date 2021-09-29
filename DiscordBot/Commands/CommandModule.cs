@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
-using System.Collections.Generic;
+using Discord_Channel_Importer.DiscordBot.Factories;
+using System.Threading.Tasks;
 
 namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 {
@@ -10,8 +11,6 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 	public abstract class CommandModule : ModuleBase<BotSocketCommandContext>
 	{
 		public abstract CommandInfo[] CommandInfo { get; }
-		//public abstract string Usage { get; }
-		//public abstract string Description { get; }
 
 		protected const GuildPermission DefaultPermission = (GuildPermission.ManageMessages | GuildPermission.ManageChannels);
 
@@ -19,8 +18,15 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 		{
 			if (this.CommandInfo != null)
 				Commands.Add(this.CommandInfo);
+		}
 
-				//Commands.Add(new CommandInfo() { Command = this, Usage = this.Usage, Description = this.Description });
+		/// <summary>
+		/// Outputs the command's usage to the context channel
+		/// </summary>
+		/// <param name="commandNumber">The command number</param>
+		public async Task SendUsageAsync(int commandNumber = 1)
+		{
+			await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Usage", CommandInfo[commandNumber - 1].Usage, Color.LightGrey));
 		}
 	}
 }

@@ -28,6 +28,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 		public async Task ImportMessages(string url, string channel = "")
 		{
 			await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
+			await SendUsageAsync();
 		}
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
@@ -38,6 +39,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 			if (url.Length <= 0)
 			{
 				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("URL required!", "How am I supposed to know what you want? Provide a URL to the json containing the channel with messages.", Color.Red));
+				await SendUsageAsync();
 				return;
 			}
 
@@ -47,6 +49,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 			if (uri == null)
 			{
 				await ReplyAsync(null, false, DiscordFactory.CreateEmbed("Invalid URL!", "The URL you passed is not valid. (It should look something like this: https://my-website.com/)", Color.Red));
+				await SendUsageAsync();
 				return;
 			}
 

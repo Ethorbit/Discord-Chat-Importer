@@ -22,12 +22,21 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
 		[Command("importer cancel", true, RunMode = RunMode.Async)]
+		public async Task CancelMessageImport(string channel = null)
+		{
+			await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
+			await SendUsageAsync();
+		}
+
+			[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
+		[Command("importer cancel", true, RunMode = RunMode.Async)]
 		public async Task CancelMessageImport(ISocketMessageChannel channel = null)
 		{
 			#region Attempt
 			if (channel == null)
 			{
 				await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
+				await SendUsageAsync();
 				return;
 			}
 
@@ -39,7 +48,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 			#endregion
 
 			this.Context.Bot.ChatImportManager.RemoveImporter(channel);
-			await ReplyAsync(this.Context.User.Mention + $" Stopped importing to {channel.Name}.");
+			await ReplyAsync(this.Context.User.Mention + $" Cancelled importing for {channel.Name}. :thumbsup:");
 		}
 
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]

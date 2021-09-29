@@ -23,6 +23,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 		public async Task RemoveImportedMessages(string channel = null)
 		{
 			await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
+			await SendUsageAsync();
 		}
 		
 		[RequireUserPermissionWithError(DefaultPermission, Group = "Permission")]
@@ -32,6 +33,7 @@ namespace Discord_Channel_Importer.DiscordBot.Commands.Modules
 			if (channel == null)
 			{
 				await ReplyAsync(null, false, BotMessageFactory.CreateEmbed(BotMessageType.InvalidChannel));
+				await SendUsageAsync();
 				return;
 			}
 
