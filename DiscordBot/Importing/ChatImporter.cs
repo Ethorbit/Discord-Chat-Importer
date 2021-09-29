@@ -37,7 +37,7 @@ namespace Discord_Channel_Importer.DiscordBot.Importing
 			Message msg = expChan.Messages.Peek();
 			DateTime msgTime = msg.Timestamp.UtcDateTime;
 			var author = DiscordFactory.CreateEmbedAuthor(msg.Author.Name, msg.Author.AvatarUrl);
-			var footer = DiscordFactory.CreateEmbedFooter($"(Archived from: {msgTime.ToString("d")} at {msgTime.ToString("t")} UTC)");
+			var footer = DiscordFactory.CreateEmbedFooter($@"(Archived from: {expChan.Guild.Name}, #{expChan.Channel.Name} on: {msgTime.ToString("d")} at {msgTime.ToString("t")} UTC)");
 
 			if (msg.Content.Length > 0) // Regular message text
 			{
