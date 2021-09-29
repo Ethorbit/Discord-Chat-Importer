@@ -1,6 +1,5 @@
 # Discord-Chat-Importer
 Discord-Chat-Importer allows you to import Discord channels (exported with DiscordChatExporter) across Discord servers.
-<br></br>There is no limit to how many imports you can do at once.
 
 # Steps
 ## Exporting a channel to .json
@@ -20,6 +19,10 @@ Discord-Chat-Importer allows you to import Discord channels (exported with Disco
 * Copy the Token, you'll need this for the next step.
 
 ## Starting the bot
+* Download the executable from: https://github.com/Ethorbit/Discord-Chat-Importer/releases
+* Open the Command Prompt or Terminal
+* Run the executable with the argument as the token
+   * Windows example: `"C:\Users\Ethorbit\source\repos\Discord-Channel-Importer\bin\Debug\netcoreapp3.1\Discord-Channel-Importer.exe" "MQENWQKNQWKRNWQRQOWR.WQEOJQWEODN3AKDNAKNXeIA"`
 
 
 ## Importing the .json
