@@ -1,4 +1,7 @@
-# Discord-Chat-Importer
+## DISCONTINUED
+This will not work, see: https://github.com/Ethorbit/Discord-Chat-Importer/issues/2
+
+# Discord-Chat-Importer (DISCONTINUED)
 Discord-Chat-Importer allows you to import Discord channels and chats (exported with DiscordChatExporter) across Discord servers.
 
 # Steps
