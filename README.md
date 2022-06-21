@@ -1,5 +1,5 @@
 # Discord-Chat-Importer 
-Discord-Chat-Importer allows you to import Discord channels and chats (that were exported from [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter)) across Discord servers.
+Discord-Chat-Importer allows you to import Discord channels and chats (exported from [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter)) across Discord servers.
 
 # Steps
 ## Exporting a channel to .json
