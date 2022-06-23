@@ -16,5 +16,11 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 5.0.x
-    - name: Build
-      run: dotnet publish --self-contained -c Release -r win10-x64
+    - name: Build-Win10-x64
+      run: dotnet publish -c Release -r win10-x64   
+    - name: Build-Win10-x86
+      run: dotnet publish -c Release -r win10-x86     
+    - name: Build-Linux-x64
+      run: dotnet publish -c Release -r linux-x64
+    - name: Build-Linux-x86
+      run: dotnet publish -c Release -r linux-x86
