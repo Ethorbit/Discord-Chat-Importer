@@ -25,14 +25,24 @@ Discord-Chat-Importer allows you to import Discord channels and chats (exported 
 ## Starting the bot
 * Download the executable from: https://github.com/Ethorbit/Discord-Chat-Importer/releases
 * Open the Command Prompt or Terminal
-* Run the executable with the argument as the token
-   * Windows example: `"C:\Users\Joe\Downloads\Discord-Channel-Importer.exe" "MQENWQKNQWKRNWQRQOWR.WQEOJQWEODN3AKDNAKNXeIA"`
-
+* Run the executable with the argument as the token:
+       <details>
+           <summary>Windows</summary>
+             <code>"C:\Users\Joe\Downloads\Discord-Channel-Importer.exe" "MQENWQKNQWKRNWQRQOWR.WQEOJQWEODN3AKDNAKNXeIA"</code>
+       </details>
+       <details>
+           <summary>Linux</summary>
+             <code>"/home/Joe/Downloads/Discord-Channel-Importer" "MQENWQKNQWKRNWQRQOWR.WQEOJQWEODN3AKDNAKNXeIA"</code>
+       </details>
 
 ## Importing the .json
-* Upload the .json to a url that will display its raw text
-   * Example: https://www.dropbox.com/s/c5rvnig3pzeackp/Ethorbit%27s%20server%20-%20Text%20Channels%20-%20fkin-general%20%5B892291310927622204%5D.json?dl=0&raw=1
-(Dropbox copied link with &raw=1 added at the end)
+
+* Upload the .json to a url that will display its raw text:
+   <details>
+      <summary>Dropbox</summary>
+        * https://www.dropbox.com/s/c5rvnig3pzeackp/Ethorbit%27s%20server%20-%20Text%20Channels%20-%20fkin-general%20%5B892291310927622204%5D.json?dl=0&raw=1
+       (Copied link with &raw=1 added at the end)
+   </details>
 
 * Enter the command in: `!importer import <url> #channel`
 <br></br> ![Import Preview](https://i.imgur.com/SZ1bOq9.png)
