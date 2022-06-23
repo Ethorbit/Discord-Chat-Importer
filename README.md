@@ -23,7 +23,7 @@ Discord-Chat-Importer allows you to import Discord channels and chats (exported 
 **WARNING:** DO NOT try to use the bot in multiple servers at once as it was designed to only support 1. Create more bots if you have to.
 
 ## Starting the bot
-* Download the executable from: https://github.com/Ethorbit/Discord-Chat-Importer/releases
+* Download the executable from: https://github.com/Ethorbit/Discord-Chat-Importer/releases (Currently just Windows)
 * Open the Command Prompt or Terminal
 * Run the executable with the argument as the token:
        <details>
