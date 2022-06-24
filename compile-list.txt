@@ -1,0 +1,6 @@
+win-x64
+win-x86
+win-arm
+linux-x64
+linux-arm
+osx-x64
