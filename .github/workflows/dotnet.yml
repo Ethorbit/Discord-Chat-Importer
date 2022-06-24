@@ -16,9 +16,11 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Build-Win10-x64
-      run: dotnet publish -c Release -r win10-x64   
+      run: dotnet publish -c Release -r win-x64 
     - name: Build-Win10-x86
-      run: dotnet publish -c Release -r win10-x86     
+      run: dotnet publish -c Release -r win-x86   
+    - name: Build-Win10-arm
+      run: dotnet publish -c Release -r win-arm 
   linux-build:
      runs-on: ubuntu-latest
      steps:
@@ -29,3 +31,15 @@ jobs:
           dotnet-version: 6.0.x
       - name: Build-Linux-x64
         run: dotnet publish -c Release -r linux-x64
+      - name: Build-Linux-arm
+        run: dotnet publish -c Release -r linux-arm
+  osx-build:
+      runs-on: macos-latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: Setup .NET
+        - uses: actions/setup-dotnet@v2
+          with:
+            dotnet-version: 6.0.x
+        - name: Build-OSX-10.11-x64
+          run: dotnet publish -c Release -r osx-x64
