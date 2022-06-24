@@ -2,12 +2,12 @@
 Discord-Chat-Importer allows you to import Discord channels and chats (exported from [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter)) across Discord servers.
 
 # Steps
-## Exporting a channel to .json
+## 1. Export a channel to .json
 * Download DiscordChatExporter: https://github.com/Tyrrrz/DiscordChatExporter
-* Use DiscordChatExporter to export a channel to .json Format:
+* Use DiscordChatExporter to export a channel to **.json** format:
 <br></br> [![Export Tutorial](https://i.imgur.com/78Ejkhp.jpg)](https://m.youtube.com/watch?v=tt-TBOWLyJk)
 
-## Creating the bot
+## 2. Create the bot
 * Go to: https://discord.com/developers/applications
 * Click "New Application" on the top-right.
 * Give it a name and press `Create`
@@ -22,7 +22,10 @@ Discord-Chat-Importer allows you to import Discord channels and chats (exported 
 
 **WARNING:** DO NOT try to use the bot in multiple servers at once as it was designed to only support 1. Create more bots if you have to.
 
-## Starting the bot
+## 3. Download .NET 6
+https://dotnet.microsoft.com/en-us/download/dotnet/6.0
+
+## 4. Start the bot
 * Download the executable from: https://github.com/Ethorbit/Discord-Chat-Importer/releases (Currently just Windows)
 * Open the Command Prompt or Terminal
 * Run the executable with the argument as the token:
@@ -35,7 +38,7 @@ Discord-Chat-Importer allows you to import Discord channels and chats (exported 
              <code>"/home/Joe/Downloads/Discord-Channel-Importer" "MQENWQKNQWKRNWQRQOWR.WQEOJQWEODN3AKDNAKNXeIA"</code>
        </details>
 
-## Importing the .json
+## 5. Import the .json
 
 * Upload the .json to a url that will display its raw text:
    <details>
@@ -47,7 +50,7 @@ Discord-Chat-Importer allows you to import Discord channels and chats (exported 
 * Enter the command in: `!importer import <url> #channel`
 <br></br> ![Import Preview](https://i.imgur.com/SZ1bOq9.png)
 
-## Commands
+# Bot Commands
 You need the Manage Messages and Manage Channels permissions to use the bot commands.
 <br></br>Type `!importer help` for the command list.
 * ![Command Preview](https://i.imgur.com/I684Agh.png)
