@@ -1,12 +1,14 @@
+# Discord-Chat-Importer 
 [![build](https://github.com/Ethorbit/Discord-Chat-Importer/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Ethorbit/Docker-Srcds/actions/workflows/docker-image.yml)
 [![Release](https://img.shields.io/github/release/Ethorbit/Discord-Chat-Importer.svg)](https://github.com/Ethorbit/Discord-Chat-Importer/releases)
 [![issues](https://img.shields.io/github/issues/Ethorbit/Discord-Chat-Importer)](https://github.com/Ethorbit/Discord-Chat-Importer/issues?q=is%3Aopen+is%3Aissue)
 
-# Discord-Chat-Importer 
 Discord-Chat-Importer allows you to import Discord channels and chats (exported from [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter)) across Discord servers.
 
-# Steps
-## 1. Export a channel to .json
+![Import Preview](https://i.imgur.com/SZ1bOq9.png)
+
+# Steps:
+### 1. Export a channel to .json
 * Download [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases)
 * Use DiscordChatExporter to export a channel to **.json** format:
 <br></br> [![Export Tutorial](https://i.imgur.com/78Ejkhp.jpg)](https://m.youtube.com/watch?v=tt-TBOWLyJk)
@@ -44,15 +46,14 @@ https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 
 ## 5. Import the .json
 
-* Upload the .json to a url that will display its raw text:
-   <details>
+* Upload the .json you exported with DiscordChatExporter to a URL that will display its raw text:
+  <details>
       <summary>Dropbox</summary>
         * https://www.dropbox.com/s/c5rvnig3pzeackp/Ethorbit%27s%20server%20-%20Text%20Channels%20-%20fkin-general%20%5B892291310927622204%5D.json?dl=0&raw=1
        (Copied link with &raw=1 added at the end)
    </details>
 
-* Enter the command in: `!importer import <url> #channel`
-<br></br> ![Import Preview](https://i.imgur.com/SZ1bOq9.png)
+* Inside the Discord server, type: `!importer import <url> #channel`
 
 # Bot Commands
 You need the Manage Messages and Manage Channels permissions to use the bot commands.
