@@ -3,7 +3,7 @@ Discord-Chat-Importer allows you to import Discord channels and chats (exported 
 
 # Steps
 ## 1. Export a channel to .json
-* Download [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter)
+* Download [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases)
 * Use DiscordChatExporter to export a channel to **.json** format:
 <br></br> [![Export Tutorial](https://i.imgur.com/78Ejkhp.jpg)](https://m.youtube.com/watch?v=tt-TBOWLyJk)
 
