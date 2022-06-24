@@ -16,11 +16,11 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Build-Win10-x64
-      run: dotnet publish -c Release -r win-x64 
+      run: dotnet publish -c Release -r win-x64
     - name: Build-Win10-x86
-      run: dotnet publish -c Release -r win-x86   
+      run: dotnet publish -c Release -r win-x86
     - name: Build-Win10-arm
-      run: dotnet publish -c Release -r win-arm 
+      run: dotnet publish -c Release -r win-arm
   linux-build:
      runs-on: ubuntu-latest
      steps:
